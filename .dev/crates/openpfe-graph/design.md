@@ -40,6 +40,10 @@ Heavy traversals may run on `spawn_blocking` from async HTTP handlers.
 - Schema constants for node/edge types — [specification.md](./specification.md)
 - Open/create at `./.openpfe/graph/store/` when server starts
 
+## Spikes (engine proof)
+
+Before phase 2 merge, run [graph-db-spike.md](./graph-db-spike.md): [spike-indradb.md](./spike-indradb.md), [spike-grafeo.md](./spike-grafeo.md). Update engine lines here and in [specification.md](./specification.md) from spike outcomes.
+
 ## Related
 
 - [openpfe-mcp/design.md](../openpfe-mcp/design.md) — agent queries

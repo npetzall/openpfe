@@ -67,5 +67,7 @@ Used by `openpfe-mcp` tools and `GET /api/v1/graph/clusters/:id/subgraph` — [o
 
 ## Related
 
-- [graph-db-evaluation.md](./graph-db-evaluation.md) — selection rationale
+- [graph-db-evaluation.md](./graph-db-evaluation.md) — selection rationale (provisional until spikes)
+- [graph-db-spike.md](./graph-db-spike.md) — v1 spike program
+- [spike-indradb.md](./spike-indradb.md), [spike-grafeo.md](./spike-grafeo.md)
 - [openpfe-mcp/specification.md](../openpfe-mcp/specification.md) — agent query surfaces
