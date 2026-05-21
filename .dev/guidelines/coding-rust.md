@@ -25,6 +25,7 @@ Do not pull HTTP or UDS into `openpfe-core` or `openpfe-graph`.
 - Obey [dependency rules](../workspace-crates.md#dependency-rules-normative); run `cargo tree` mentally before adding an edge.
 - Workspace dependencies: centralize versions in the root `Cargo.toml` `[workspace.dependencies]` when the workspace exists.
 - Prefer std + ecosystem crates already chosen in architecture (axum, hyper, tokio, tower, tower-http) — do not introduce a second HTTP stack.
+- **Security and new crates:** [security-rust.md](./security-rust.md) (`cargo audit`, intake checklist).
 
 ## Error handling
 
@@ -52,6 +53,7 @@ Do not pull HTTP or UDS into `openpfe-core` or `openpfe-graph`.
 
 ## Related
 
+- [security-rust.md](./security-rust.md) — `cargo audit`, new external crate intake
 - [protocols.md](./protocols.md) — IPC/HTTP shapes
 - [testing-rust.md](./testing-rust.md) — tests
 - [mcp.md](./mcp.md) — MCP handler crate only

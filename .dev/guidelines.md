@@ -16,6 +16,8 @@ How we implement **openpfe** consistently across the Rust workspace and embedded
 
 5. **Minimize scope; match existing docs and code.** Smallest correct change; no drive-by refactors. When adding a feature, update the owning crate’s `.dev/crates/<name>/` docs in the same change when behavior is normative.
 
+6. **Dependency hygiene.** New or upgraded **external** crates (crates.io/git) follow [guidelines/security-rust.md](./guidelines/security-rust.md): workspace rules, short intake checklist, and **`cargo audit`** before merge (or documented remediation).
+
 ## Layout
 
 ```
@@ -27,6 +29,7 @@ How we implement **openpfe** consistently across the Rust workspace and embedded
   mcp.md
   testing-rust.md
   testing-javascript.md
+  security-rust.md
 ```
 
 ## Guidelines index
@@ -42,6 +45,7 @@ Read a file when your task touches its **scope**. Paths are repo-relative from t
 | [guidelines/mcp.md](./guidelines/mcp.md) | MCP tools/resources, `openpfe mcp`, agent context | Model Context Protocol over IPC; alignment with PFE graph |
 | [guidelines/testing-rust.md](./guidelines/testing-rust.md) | Rust unit/integration tests, CI for crates | Test layout, async tests, fixtures under `./.openpfe/` |
 | [guidelines/testing-javascript.md](./guidelines/testing-javascript.md) | Front-end tests for embedded UI | JS test runner, mocking `/api/v1`, no real server required for unit tests |
+| [guidelines/security-rust.md](./guidelines/security-rust.md) | New `Cargo.toml` deps, lockfile changes, supply-chain review | `cargo audit`, intake process for external crates, JS audit when `package.json` exists |
 
 ## When to use which guideline
 
@@ -54,6 +58,7 @@ Read a file when your task touches its **scope**. Paths are repo-relative from t
 | [mcp.md](./guidelines/mcp.md) | MCP tools/resources, stdio bridge, agent context shield |
 | [testing-rust.md](./guidelines/testing-rust.md) | `cargo test`, integration tests with temp project dirs |
 | [testing-javascript.md](./guidelines/testing-javascript.md) | UI unit tests, fetch mocks, component behavior |
+| [security-rust.md](./guidelines/security-rust.md) | Adding/upgrading crates.io or git deps; auditing `Cargo.lock` |
 
 ## System context (when rules above are not enough)
 
@@ -70,6 +75,7 @@ Read a file when your task touches its **scope**. Paths are repo-relative from t
 | **Guidelines (this file + folder)** | `.dev/guidelines.md`, `.dev/guidelines/*.md` |
 | **Per-crate normative spec** | `.dev/crates/<name>/specification.md` |
 | **System architecture** | [architcture.md](./architcture.md), [cross-cutting.md](./cross-cutting.md) |
+| **Implementation plans** | [plans/README.md](./plans/README.md) |
 
 If a guideline and a crate `specification.md` disagree, **the crate specification wins** — update the guideline or the spec in the same PR.
 
