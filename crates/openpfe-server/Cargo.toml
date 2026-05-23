@@ -1,0 +1,16 @@
+[package]
+name = "openpfe-server"
+version.workspace = true
+edition.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[lib]
+
+[dependencies]
+openpfe-core = { path = "../openpfe-core" }
+openpfe-ipc = { path = "../openpfe-ipc" }
+openpfe-llm = { path = "../openpfe-llm" }
+openpfe-mcp = { path = "../openpfe-mcp" }
+openpfe-ui = { path = "../openpfe-ui" }
+openpfe-webui = { path = "../openpfe-webui" }

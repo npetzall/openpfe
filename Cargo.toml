@@ -1,0 +1,19 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/openpfe",
+    "crates/openpfe-server",
+    "crates/openpfe-ipc",
+    "crates/openpfe-ui",
+    "crates/openpfe-webui",
+    "crates/openpfe-mcp",
+    "crates/openpfe-core",
+    "crates/openpfe-graph",
+    "crates/openpfe-llm",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+repository = "https://github.com/npetzall/openpfe"
+publish = false

@@ -1,0 +1,12 @@
+[package]
+name = "openpfe-ui"
+version.workspace = true
+edition.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[lib]
+
+[dependencies]
+openpfe-core = { path = "../openpfe-core" }
+openpfe-graph = { path = "../openpfe-graph" }

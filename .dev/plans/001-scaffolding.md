@@ -1,5 +1,7 @@
 # Plan 001: workspace scaffolding
 
+**Status:** Complete (2026-05-23). Workspace stubs, path-only deps, CI (fmt/clippy/test); `cargo audit` deferred until first external crate intake.
+
 **Read when:** bootstrapping the Rust workspace (no root `Cargo.toml` yet). This plan creates **empty, compiling** workspace members only — product behavior belongs in later per-crate plans.
 
 ## Normative sources
@@ -14,8 +16,8 @@
 
 ## Prerequisites
 
-- `.dev/crates/<name>/` docs present for each member (`design.md`, `requirements.md`, `specification.md`).
-- Rust toolchain installed (`rustup`); no `crates/` tree or root `Cargo.toml` yet.
+- [x] `.dev/crates/<name>/` docs present for each member (`design.md`, `requirements.md`, `specification.md`).
+- [x] Rust toolchain installed (`rustup`); root `Cargo.toml` and `crates/` tree in place.
 
 ## Goal
 
@@ -63,40 +65,40 @@ Wire **only** the edges allowed by [dependency rules](../workspace-crates.md#dep
 
 ### Root workspace
 
-- [ ] Add root `Cargo.toml` with `[workspace]` `resolver = "2"` and `members` listing all nine paths under `crates/` (see [physical layout](../workspace-crates.md#physical-workspace-layout)).
-- [ ] Add `[workspace.package]` defaults: `edition = "2024"`, shared `version`, `license` / `repository` if already decided for the repo.
-- [ ] Do **not** add `[workspace.dependencies]` or any crates.io/git dependency — first external crate follows [dependencies/README.md](../dependencies/README.md).
-- [ ] Add `rust-toolchain.toml` (stable channel + components: `rustfmt`, `clippy`) or document MSRV in root `Cargo.toml` if org policy requires it.
+- [x] Add root `Cargo.toml` with `[workspace]` `resolver = "2"` and `members` listing all nine paths under `crates/` (see [physical layout](../workspace-crates.md#physical-workspace-layout)).
+- [x] Add `[workspace.package]` defaults: `edition = "2024"`, shared `version`, `license` / `repository` if already decided for the repo. *(No `license` field yet — not decided for the repo.)*
+- [x] Do **not** add `[workspace.dependencies]` or any crates.io/git dependency — first external crate follows [dependencies/README.md](../dependencies/README.md).
+- [x] Add `rust-toolchain.toml` (stable channel + components: `rustfmt`, `clippy`) or document MSRV in root `Cargo.toml` if org policy requires it.
 
 ### Per-crate manifests
 
-- [ ] Create `crates/<name>/Cargo.toml` for each member: `name`, `edition` via workspace inheritance, `publish = false` if applicable.
-- [ ] Set `[lib]` / `[[bin]]` correctly (`openpfe` only as binary; others as `lib`).
-- [ ] Declare `path` dependencies per table above only (no `{ workspace = true }` external deps).
-- [ ] Add empty `src/lib.rs` or `src/main.rs` for every member.
+- [x] Create `crates/<name>/Cargo.toml` for each member: `name`, `edition` via workspace inheritance, `publish = false` if applicable.
+- [x] Set `[lib]` / `[[bin]]` correctly (`openpfe` only as binary; others as `lib`).
+- [x] Declare `path` dependencies per table above only (no `{ workspace = true }` external deps).
+- [x] Add empty `src/lib.rs` or `src/main.rs` for every member.
 
 ### Repository hygiene
 
-- [ ] Extend root `.gitignore`: `target/`, `.openpfe/`, editor/OS noise.
-- [ ] Add placeholder `crates/openpfe-webui/assets/` (empty or `.gitkeep`) — no embedded bundle yet.
-- [ ] Add minimal CI (e.g. `.github/workflows/rust.yml`) or extend existing pipeline:
-  - `cargo fmt --check`
-  - `cargo clippy --workspace -- -D warnings` (or project default)
-  - `cargo test --workspace`
-  - `cargo audit` once a `Cargo.lock` with external deps exists (see [security-rust.md](../guidelines/security-rust.md))
+- [x] Extend root `.gitignore`: `target/`, `.openpfe/`, editor/OS noise.
+- [x] Add placeholder `crates/openpfe-webui/assets/` (empty or `.gitkeep`) — no embedded bundle yet.
+- [x] Add minimal CI (e.g. `.github/workflows/rust.yml`) or extend existing pipeline:
+  - [x] `cargo fmt --check`
+  - [x] `cargo clippy --workspace -- -D warnings` (or project default)
+  - [x] `cargo test --workspace`
+  - [ ] `cargo audit` once a `Cargo.lock` with external deps exists (see [security-rust.md](../guidelines/security-rust.md))
 
 ### Verification
 
-- [ ] `cargo check --workspace` exits 0.
-- [ ] `cargo test --workspace` exits 0 (allow empty test suites).
-- [ ] `cargo tree` shows no forbidden edges.
-- [ ] All nine directories exist under `crates/` with the expected `Cargo.toml` + `src/` entry file.
+- [x] `cargo check --workspace` exits 0.
+- [x] `cargo test --workspace` exits 0 (allow empty test suites).
+- [x] `cargo tree` shows no forbidden edges.
+- [x] All nine directories exist under `crates/` with the expected `Cargo.toml` + `src/` entry file.
 
 ## Acceptance criteria
 
-- Workspace builds and tests with **stubs only** — no IPC, HTTP listeners, flock, graph persistence, MCP, or inference.
-- Member list and path dependency graph match [workspace-crates.md](../workspace-crates.md).
-- CI (if added) runs the checks above on push/PR.
+- [x] Workspace builds and tests with **stubs only** — no IPC, HTTP listeners, flock, graph persistence, MCP, or inference.
+- [x] Member list and path dependency graph match [workspace-crates.md](../workspace-crates.md).
+- [x] CI (if added) runs the checks above on push/PR (except `cargo audit` — pending external deps).
 
 ## Out of scope
 

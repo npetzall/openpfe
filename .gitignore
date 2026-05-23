@@ -1,1 +1,14 @@
 .DS_Store
+target/
+.openpfe/
+
+# External dependency intake — trial manifests (see .dev/dependencies/README.md)
+/Cargo-with-*.toml
+/Cargo-with-*.lock
+
+# Editor / OS
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
