@@ -23,9 +23,22 @@ Do not pull HTTP or UDS into `openpfe-core` or `openpfe-graph`.
 ## Dependencies
 
 - Obey [dependency rules](../workspace-crates.md#dependency-rules-normative); run `cargo tree` mentally before adding an edge.
-- Workspace dependencies: centralize versions in the root `Cargo.toml` `[workspace.dependencies]` when the workspace exists.
-- Prefer std + ecosystem crates already chosen in architecture (axum, hyper, tokio, tower, tower-http) — do not introduce a second HTTP stack.
-- **Security and new crates:** [security-rust.md](./security-rust.md) (`cargo audit`, intake checklist).
+- **Path deps** between workspace members: declare in member `Cargo.toml` as today; no `.dev/dependencies/` intake.
+- **External crates** (crates.io / git): full intake in [dependencies/README.md](../dependencies/README.md) — record under `.dev/dependencies/<crate-name>/` **before** changing any real `Cargo.toml`.
+- Workspace versions: centralize in root `[workspace.dependencies]` when adopted; member crates use `{ workspace = true }`.
+- Prefer std and crates already chosen in [architcture.md](../architcture.md) — do not introduce a parallel stack (e.g. a second HTTP framework).
+
+### Adding an external crate (order)
+
+1. Create `.dev/dependencies/<crate-name>/` and write **`rational.md`**.
+2. Preview lock impact: [.dev/scripts/dependency-lock-diff.sh](../scripts/dependency-lock-diff.sh) (`<crate-name>@<version>`); record diff in **`lock-update.md`**.
+3. Add the dependency to the real `Cargo.toml`(s) (workspace table + member edges as needed).
+4. **Immediately** from repo root: **`cargo audit`** — first Cargo command after the manifest edit; paste output into **`scan.md`**.
+5. Complete other scans (when defined) → append **`scan.md`**; write **`verdict.md`**; merge with the PR.
+
+Do not run `cargo build`, `cargo check`, or `cargo update` between step 3 and step 4 unless a scan explicitly requires it — **`cargo audit`** is the mandatory next step after the manifest change.
+
+Details: [security-rust.md](./security-rust.md).
 
 ## Error handling
 

@@ -2,50 +2,57 @@
 
 **Read when:** adding or upgrading a **crates.io** or **git** dependency, touching root or member `Cargo.toml`, or reviewing supply-chain risk for the workspace.
 
-**Normative refs:** [workspace-crates.md](../workspace-crates.md#dependency-rules-normative) (crate boundaries), [coding-rust.md](./coding-rust.md) (dependency style).
+**Normative refs:** [workspace-crates.md](../workspace-crates.md#dependency-rules-normative) (crate boundaries), [coding-rust.md](./coding-rust.md) (dependency style), [dependencies/README.md](../dependencies/README.md) (intake folder and workflow).
+
+## Intake before `Cargo.toml`
+
+No external crate is added to root or member `Cargo.toml` until a folder exists at **`.dev/dependencies/<crate-name>/`** with at least **`rational.md`** started. Before merge, that folder must also contain **`scan.md`**, **`lock-update.md`**, and **`verdict.md`** (see [dependencies/README.md](../dependencies/README.md)).
+
+| File | Purpose |
+|------|---------|
+| `rational.md` | Why the crate is needed; scope; re-implement vs use trade-off |
+| `lock-update.md` | Transitive lock delta from **resolution-only** preview (not from `cargo build`) |
+| `scan.md` | `cargo audit` and other scan outputs (append as tools are added) |
+| `verdict.md` | Accept / reject / defer; version; what landed in the workspace |
+
+**Lock preview:** [.dev/scripts/dependency-lock-diff.sh](../scripts/dependency-lock-diff.sh) copies `Cargo.toml` / `Cargo.lock` to gitignored `Cargo-with-<crate-name>.*`, resolves against the trial manifest, and diffs lockfiles without leaving the workspace lock changed.
 
 ## `cargo audit` (RustSec)
 
 [`cargo-audit`](https://github.com/rustsec/rustsec/tree/main/cargo-audit) checks the resolved dependency graph against the [RustSec advisory database](https://github.com/RustSec/advisory-db).
 
 1. **Install** (once per machine): `cargo install cargo-audit` (or your preferred Rust toolchain manager equivalent).
-2. **Run** from the repository root (workspace root): `cargo audit`.
-3. **When to run**
+2. **Mandatory order when adding a dependency:** edit `Cargo.toml` → run **`cargo audit`** from the repository root → record output in `.dev/dependencies/<crate-name>/scan.md`. Do not run `cargo build`, `cargo check`, or `cargo update` before that audit unless a documented scan requires it.
+3. **When to run again**
    - Before opening or updating a PR that changes `Cargo.toml` or `Cargo.lock`.
    - After rebasing or merging branches that touched the lockfile.
-   - Periodically on `main` (ideally automated in CI when a pipeline exists).
+   - Periodically on `main` (automate in CI when a pipeline exists).
 
-**If `cargo audit` reports issues:** upgrade the affected crate to a non-vulnerable version, replace the dependency, or (only with team agreement) document a time-bounded exception in the PR and, if the risk is architectural, in the owning crate’s `design.md`.
+**If `cargo audit` reports issues:** upgrade the affected crate to a non-vulnerable version, replace the dependency, or (only with team agreement) document a time-bounded exception in **`verdict.md`** and the PR; architectural risk may also go in the owning crate’s `design.md`.
 
-Keep `cargo-audit` itself reasonably current so the advisory DB format stays supported (`cargo audit --version` vs [releases](https://github.com/rustsec/rustsec/releases)).
+Keep `cargo-audit` current ([releases](https://github.com/rustsec/rustsec/releases)).
 
 ## Process: adding a new external crate
 
-Treat every new direct dependency as a small **supply-chain and maintenance** decision, not only a version pin.
+Treat every new direct dependency as a **supply-chain and maintenance** decision.
 
-1. **Need**
-   - Prefer **std** and crates already mandated by [architcture.md](../architcture.md) / crate `design.md` (e.g. one HTTP stack).
-   - If the capability exists in the workspace, extend the owning crate instead of pulling a parallel library.
+1. **Record** — `.dev/dependencies/<crate-name>/rational.md` (need, scope, re-implement vs adopt, alternatives).
+2. **Preview graph** — `dependency-lock-diff.sh <crate-name>@<version>` → capture diff in **`lock-update.md`**.
+3. **Workspace rules** — obey [dependency rules](../workspace-crates.md#dependency-rules-normative); add version under `[workspace.dependencies]` when the workspace uses that table; members reference `{ workspace = true }`.
+4. **Manifest** — apply the same dependency shape to the real `Cargo.toml`(s).
+5. **Audit** — **`cargo audit`** immediately; paste into **`scan.md`**.
+6. **Other scans** — append to **`scan.md`** as the project adds tools.
+7. **Decide** — **`verdict.md`**; non-obvious security behavior also in owning crate **`design.md`**.
+8. **Merge bar** — clean `cargo audit` or documented remediation in **`verdict.md`** and the PR.
 
-2. **Workspace rules**
-   - Obey [dependency rules](../workspace-crates.md#dependency-rules-normative): no forbidden edges (e.g. UI/MCP boundaries).
-   - Add the version under root **`[workspace.dependencies]`** when the workspace uses that table; member crates reference it with `{ workspace = true }`.
+### Crate selection (checklist)
 
-3. **Crate selection (short checklist)**
-   - **License:** compatible with the project’s licensing policy; read `LICENSE` / SPDX on crates.io.
-   - **Maintenance:** recent releases, responsive maintainers, no obvious abandonment for security-sensitive code (crypto, IPC, HTTP, parsing untrusted input).
-   - **Source:** prefer **crates.io** with reproducible versions; **git** deps need a pinned revision and a clear reason (document in PR or `design.md`).
-   - **Scope:** avoid crates that pull large unrelated subsystems or duplicate an existing stack choice.
+- **License:** compatible with project policy; read `LICENSE` / SPDX on crates.io.
+- **Maintenance:** recent releases; no obvious abandonment for security-sensitive areas (crypto, IPC, HTTP, untrusted parsing).
+- **Source:** prefer **crates.io** with pinned versions; **git** deps need a pinned revision and reason in **`rational.md`**.
+- **Scope:** avoid large unrelated subgraphs or duplicate stack choices from [architcture.md](../architcture.md).
 
-4. **Graph impact**
-   - Run `cargo tree -i <crate>` (after adding) to see **who** brings it in and avoid surprise duplicates.
-   - Run `cargo audit` on the updated lockfile.
-
-5. **Documentation**
-   - Non-obvious choices (native `build.rs`, network at build time, `unsafe`, or security-relevant behavior) belong in the owning crate’s **`design.md`** (and `specification.md` if behavior is normative).
-
-6. **Merge bar**
-   - PR that introduces or materially upgrades an external crate should show **clean `cargo audit`** or explain the remediation plan / accepted risk in the PR description.
+After merge, run `cargo tree -i <crate>` when reviewing unexpected transitive deps.
 
 ## Embedded Web UI (JavaScript)
 
@@ -53,5 +60,6 @@ When `crates/openpfe-webui/` (or another crate) adds a **`package.json`** depend
 
 ## Related
 
-- [coding-rust.md](./coding-rust.md) — workspace deps, `cargo tree` mental model
+- [dependencies/README.md](../dependencies/README.md) — folder layout and workflow
+- [coding-rust.md](./coding-rust.md) — manifest edit order, workspace deps
 - [testing-rust.md](./testing-rust.md) — CI expectations when tests cover integration
