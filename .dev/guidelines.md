@@ -38,7 +38,7 @@ Read a file when your task touches its **scope**. Paths are repo-relative from t
 
 | Path | Read when | Scope |
 |------|-----------|--------|
-| [guidelines/coding-rust.md](./guidelines/coding-rust.md) | Editing or adding Rust workspace crates, CLI, server, IPC, graph, LLM | Style, async/sync boundaries, errors, crate layout |
+| [guidelines/coding-rust.md](./guidelines/coding-rust.md) | Editing or adding Rust workspace crates, CLI, server, IPC, graph, LLM | Style, async/sync boundaries, **ports/adapters** for workspace deps, errors, crate layout |
 | [guidelines/coding-javascript.md](./guidelines/coding-javascript.md) | Editing embedded Web UI JS under `openpfe-webui` | Modules, API client, no backend logic in static assets |
 | [guidelines/webdesign.md](./guidelines/webdesign.md) | HTML/CSS/UI for the embedded browser UI | Layout, a11y, same-origin API usage, asset layout |
 | [guidelines/protocols.md](./guidelines/protocols.md) | IPC framing, HTTP API shape, versioning, client/server messages | Envelopes, transports, echo/shutdown — not MCP tool semantics |
@@ -52,7 +52,7 @@ Read a file when your task touches its **scope**. Paths are repo-relative from t
 
 | Guideline | Typical tasks |
 |-----------|----------------|
-| [coding-rust.md](./guidelines/coding-rust.md) | New crate code, axum handlers, IPC server, graph store, CLI |
+| [coding-rust.md](./guidelines/coding-rust.md) | New crate code, axum handlers, IPC server, graph store, CLI, workspace **ports** for mocks |
 | [coding-javascript.md](./guidelines/coding-javascript.md) | `assets/js/`, API client, graph UI logic in the browser |
 | [webdesign.md](./guidelines/webdesign.md) | `assets/` HTML/CSS, drill-down / architecture views |
 | [protocols.md](./guidelines/protocols.md) | IPC envelopes, HTTP `/api/v1`, versioning, client discovery |

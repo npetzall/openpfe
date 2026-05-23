@@ -40,6 +40,38 @@ Do not run `cargo build`, `cargo check`, or `cargo update` between step 3 and st
 
 Details: [security-rust.md](./security-rust.md).
 
+## Workspace crate boundaries (ports)
+
+When crate **A** depends on workspace crate **B**, **A** must not call **B**’s API from command/handler/business modules directly. Use a **crate-local port** so tests can mock **B** without real I/O.
+
+1. Define a **trait** in **A** (`ports.rs` or `ports/`) describing only what **A** needs (consumer-driven surface).
+2. Implement it in **`adapters/<b>.rs`** (e.g. wrapping `openpfe_ipc::IpcClient`).
+3. Pass the port into logic (`Arc<dyn …>` or generic); unit tests use a **mock adapter**; integration tests may use the real **B**.
+
+**Adapters** are the only modules that `use openpfe_<b>::…` outside `lib.rs` wiring. Keep traits **small** (one concern per port). Normative wire/API detail stays in **B**’s [specification.md](../crates/) — the port is **A**’s narrowed view, not a second spec.
+
+This does **not** remove **B** from `Cargo.toml`; it limits **source** coupling and enables mocks.
+
+### Exceptions
+
+- **B** already exposes the right abstraction — use **B**’s trait or type directly (e.g. `GraphStore` in `openpfe-graph`, `LlmService` in `openpfe-llm`). Do **not** add a duplicate wrapper trait in **A** unless **A** needs a strictly narrower surface.
+- **A** is the workspace **composer** (`openpfe-server`) — may call sibling factories and listeners (`api_router`, `IpcListener::bind`, `run_server`) in **wiring** modules only (`main`, `run`, `mount`, `spawn` tasks). Domain rules stay in owning crates; do not re-trait every sibling behind another layer.
+- **A** has **no** workspace path dependencies (leaf crates such as `openpfe-ipc`, `openpfe-graph`).
+- **One-off wiring** at the binary boundary (e.g. `openpfe --server` → `openpfe_server::run_server`) — a single thin adapter or direct call in `main` is enough; no trait per line of delegation.
+
+### Example layout (`openpfe`)
+
+```
+crates/openpfe/src/
+  ports.rs           # traits
+  adapters/
+    ipc.rs           # uses openpfe_ipc
+    server.rs        # uses openpfe_server (--server)
+  client.rs          # uses ports only
+```
+
+See [testing-rust.md](./testing-rust.md) for mock vs integration test expectations.
+
 ## Error handling
 
 - Library crates: typed errors (`thiserror` or crate-local enums); avoid `unwrap()`/`expect()` except in tests or proven invariants.

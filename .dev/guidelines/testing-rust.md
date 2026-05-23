@@ -14,6 +14,8 @@
 
 Prefer testing at the **lowest crate** that owns the behavior; avoid e2e when a library test suffices.
 
+**Workspace deps:** unit tests in crate **A** should mock **crate-local ports** (see [coding-rust.md#workspace-crate-boundaries-ports](./coding-rust.md#workspace-crate-boundaries-ports)); integration/e2e tests use real sibling crates or temp sockets as appropriate.
+
 ## Fixtures and filesystem
 
 - Use **`tempfile`** (or similar) for project roots; create `.openpfe/` layout per owning crate specs ([openpfe-server/specification.md](../crates/openpfe-server/specification.md), [openpfe-graph/specification.md](../crates/openpfe-graph/specification.md), [openpfe-llm/specification.md](../crates/openpfe-llm/specification.md)).
