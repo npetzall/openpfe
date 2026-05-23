@@ -8,5 +8,5 @@ publish.workspace = true
 [lib]
 
 [dependencies]
-openpfe-core = { path = "../openpfe-core" }
 openpfe-graph = { path = "../openpfe-graph" }
+openpfe-llm = { path = "../openpfe-llm" }

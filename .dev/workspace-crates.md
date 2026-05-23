@@ -31,9 +31,11 @@ Proposed **Cargo workspace** members for `openpfe`, with boundaries, dependencie
 | **Human API one place** | `openpfe-ui` — all HTTP handlers Web UI and TUI share |
 | **Agent API one place** | `openpfe-mcp` — MCP tools/resources |
 | **Static assets only** | `openpfe-webui` — embed + MIME; no graph/config logic |
-| **Domain without I/O** | `openpfe-core`, `openpfe-graph` |
+| **Domain without I/O** | `openpfe-graph` (graph store only) |
 | **IPC without domain** | `openpfe-ipc` — frames + UDS only |
-| **Local LLM in v1** | **`openpfe-llm`** — llama.cpp ships with the product; models in `USER_HOME/.openpfe/models` |
+| **Config format** | **JSON** per owning crate (`serde_json`); HTTP uses same shapes — **no TOML** |
+| **Local LLM in v1** | **`openpfe-llm`** — project `llm.json`, shared `USER_HOME/.openpfe/models/`, llama.cpp |
+| **Paths** | **Documented per crate** in `design.md` / `requirements.md` / `specification.md` — no shared path-helper crate or API |
 
 ---
 
@@ -47,38 +49,31 @@ flowchart BT
   mcp[openpfe-mcp]
   ui[openpfe-ui]
   webui[openpfe-webui]
-  core[openpfe-core]
   graph[openpfe-graph]
   llm[openpfe-llm]
   bin --> ipc
-  bin --> core
   srv --> ipc
   srv --> mcp
   srv --> ui
   srv --> webui
-  srv --> core
   srv --> llm
-  ui --> core
   ui --> graph
-  mcp --> core
   mcp --> graph
-  core --> graph
-  llm --> core
+  ui --> llm
 ```
 
 | Crate | Type | Responsibility | Stays out of |
 |-------|------|----------------|--------------|
 | **`openpfe`** | `bin` | CLI; IPC for control + MCP bridge; optional HTTP client later for rich CLI | HTTP route definitions; MCP tools; graph |
-| **`openpfe-server`** | `lib` | `pid` flock; UDS + HTTP listeners; mount API + static; shutdown | Business handlers (delegates to `openpfe-ui`, `openpfe-mcp`) |
+| **`openpfe-server`** | `lib` | `pid` flock; UDS + HTTP; **`server.json`**; mount API + static; shutdown | Domain handlers (delegates to `openpfe-ui`, `openpfe-mcp`) |
 | **`openpfe-ipc`** | `lib` | Framing, envelope, UDS, echo/shutdown | Domain; MCP semantics; HTTP |
-| **`openpfe-ui`** | `lib` | **HTTP API for humans** — graph, config, models; route handlers | Static embed; IPC; MCP |
+| **`openpfe-ui`** | `lib` | **HTTP API for humans** — graph + JSON config routes; `AppState` from server | Static embed; IPC; MCP; owning config files |
 | **`openpfe-webui`** | `lib` | **Embedded browser UI** — `assets/` → bytes + content-type | API handlers; domain logic |
-| **`openpfe-mcp`** | `lib` | **MCP for agents** — tools/resources → core/graph | HTTP; static assets |
-| **`openpfe-core`** | `lib` | Config merge, paths, domain types, model registry | Sockets |
+| **`openpfe-mcp`** | `lib` | **MCP for agents** — tools/resources → graph | HTTP; static assets |
 | **`openpfe-graph`** | `lib` | Embedded graph store | HTTP; IPC; MCP |
-| **`openpfe-llm`** | `lib` | llama.cpp — load models from `USER_HOME/.openpfe/models`, inference for UI/MCP | — |
+| **`openpfe-llm`** | `lib` | `llm.json`, registry, downloads, inference | HTTP route impl in `openpfe-ui` |
 
-**v1 count: 9 crates** (all included; **`openpfe-llm` is not deferred**).
+**v1 count: 8 crates** (all included; **`openpfe-llm` is not deferred**).
 
 ---
 
@@ -90,18 +85,19 @@ flowchart BT
 | **`openpfe-api`** | **Renamed concept → `openpfe-ui`** (human HTTP API). |
 | **HTTP handlers inside `openpfe-server`** | Reject — use `openpfe-ui` so server stays wiring-only. |
 | **TUI-only IPC for all data** | Reject — duplicate Web UI; HTTP primary, IPC for trusted extras. |
-| **Merge `openpfe-graph` into `core`** | Reject for v1 — keep **`openpfe-graph`** separate; engine **IndraDB + RocksDB** ([openpfe-graph/design.md](./crates/openpfe-graph/design.md)). |
+| **`openpfe-core` (shared path helpers / domain types)** | **Reject** — paths documented in each owning crate; no shared helper API. |
+| **Merge `openpfe-graph` into a “core” crate** | Reject — keep **`openpfe-graph`** separate; engine **IndraDB + RocksDB** ([openpfe-graph/design.md](./crates/openpfe-graph/design.md)). |
 
 ---
 
 ## Dependency rules (normative)
 
-1. `openpfe-ui` → `core`, `graph`; **not** on `openpfe-mcp`, `openpfe-webui`, `openpfe-server`.
-2. `openpfe-mcp` → `core`, `graph`; **not** on `openpfe-ui`.
-3. `openpfe-webui` → minimal (embed only); **not** on `core`, `ui`, `graph`.
-4. `openpfe-server` → `ipc`, `ui`, `webui`, `mcp`, `core`; mounts routes from `ui` + static from `webui`.
-5. `openpfe` bin → `ipc`, `core`; avoid linking `ui`/`mcp`/`llm` on client-only paths.
-6. `openpfe-llm` → `core`; used by `openpfe-server` (and exposed via `openpfe-ui` / `openpfe-mcp` as needed).
+1. `openpfe-ui` → `graph`, `llm`; **not** on `openpfe-mcp`, `openpfe-webui`, `openpfe-server`.
+2. `openpfe-mcp` → `graph`; **not** on `openpfe-ui` or `openpfe-llm`.
+3. `openpfe-webui` → minimal (embed only); **not** on `ui`, `graph`, `llm`.
+4. `openpfe-server` → `ipc`, `ui`, `webui`, `mcp`, `llm`; mounts routes from `ui` + static from `webui`.
+5. `openpfe` bin → `ipc` only; avoid linking `ui`/`mcp`/`llm` on client-only paths.
+6. `openpfe-llm` → self-contained LLM paths + config (documented in crate specs).
 
 ---
 
@@ -115,7 +111,6 @@ crates/
   openpfe-ui/
   openpfe-webui/       # assets/ (embed) + tests/ (JS unit tests)
   openpfe-mcp/
-  openpfe-core/
   openpfe-graph/
   openpfe-llm/
 ```
@@ -147,7 +142,7 @@ Folder index: [crates/README.md](./crates/README.md).
 
 | Phase | Crates | Goal |
 |-------|--------|------|
-| **1** | `openpfe`, `openpfe-ipc`, `openpfe-server`, `openpfe-core` | Lock, socket, echo, HTTP stub |
+| **1** | `openpfe`, `openpfe-ipc`, `openpfe-server` | Lock, socket, echo, HTTP stub |
 | **2** | `openpfe-graph`, `openpfe-webui`, `openpfe-ui` | Graph + static shell + human API |
 | **3** | `openpfe-mcp`, `openpfe-llm` | MCP graph tools (read-only) + **llama-cpp-2** inference over HTTP |
 
@@ -157,7 +152,7 @@ Folder index: [crates/README.md](./crates/README.md).
 
 | # | Decision | Recorded in |
 |---|----------|-------------|
-| 1 | **9 members** — including **`openpfe-llm`** in v1 (not deferred). | This file |
+| 1 | **8 members** — including **`openpfe-llm`** in v1 (not deferred). | This file |
 | 2 | **`openpfe-ui`** = HTTP API for Web UI + TUI (like **`openpfe-mcp`** for agents). | This file |
 | 3 | **`openpfe-webui`** = embedded static browser assets (was `openpfe-embed`). | This file |
 | 4 | **CLI** → IPC for control; **Web/TUI** → HTTP for data. | [architcture.md](./architcture.md) |
@@ -167,6 +162,7 @@ Folder index: [crates/README.md](./crates/README.md).
 | 8 | **Async runtime:** **tokio** workspace-wide for v1. | [architcture.md](./architcture.md), [openpfe-server](./crates/openpfe-server/), [openpfe-ipc](./crates/openpfe-ipc/) |
 | 9 | **`openpfe-graph`:** separate member; **IndraDB + RocksDB** at `./.openpfe/graph/store/`. | [openpfe-graph/design.md](./crates/openpfe-graph/design.md) |
 | 10 | **TUI:** graph/config/models via **HTTP only**; **IPC** for echo + shutdown (same admin envelopes as CLI). | [architcture.md](./architcture.md#tui-v1) |
+| 11 | **No `openpfe-core`** — project paths are normative in each crate’s docs, not a shared Rust helper module. | This file, [cross-cutting.md](./cross-cutting.md) |
 
 ---
 

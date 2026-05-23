@@ -1,6 +1,6 @@
 # openpfe-server — design
 
-Listeners, **pid** flock, runtime dir lifecycle, mount **`openpfe-webui`** + **`openpfe-ui`**, dispatch IPC to **`openpfe-mcp`**. Wires services; does not own business handlers.
+Listeners, **pid** flock, runtime dir lifecycle, mount **`openpfe-webui`** + **`openpfe-ui`**, dispatch IPC to **`openpfe-mcp`**. Wires services; does not own graph or LLM domain rules.
 
 Workspace role: [workspace-crates.md](../../workspace-crates.md).
 
@@ -17,8 +17,9 @@ Workspace role: [workspace-crates.md](../../workspace-crates.md).
 | **LLM / graph calls** | Blocking work (`openpfe-llm`, heavy graph IO) on `spawn_blocking` or internal crate locks — do not block the runtime indefinitely on the main task. |
 | **IPC socket file** | `./.openpfe/server/socket` (filename **`socket`**, not `openpfe.sock`) — [openpfe-ipc/specification.md](../openpfe-ipc/specification.md). |
 | **`pid` flock (Rust)** | **`fd-lock`** crate — hold `LockFile` for process lifetime; write ASCII PID after lock acquired. |
-| **Shutdown (v1)** | **Bounded graceful drain** then exit. Default **5s** (`OPENPFE_SHUTDOWN_TIMEOUT` / `[server] shutdown_timeout_secs`). Stop accept → drain in-flight IPC MCP + HTTP handlers → cancel remainder → close listeners → remove runtime files. |
-| **Logging (v1)** | **Detached (default):** append to `./.openpfe/server/openpfe.log`. **Foreground:** `--foreground` or `OPENPFE_FOREGROUND=1` → **stderr** (no log file). Level from config `[server] log_level` (default `info`). |
+| **Shutdown (v1)** | **Bounded graceful drain** then exit. Default **5s** (`OPENPFE_SHUTDOWN_TIMEOUT` / `server.json`). Stop accept → drain in-flight IPC MCP + HTTP handlers → cancel remainder → close listeners → remove runtime files. |
+| **Logging (v1)** | **Detached (default):** append to `./.openpfe/server/openpfe.log`. **Foreground:** `--foreground` or `OPENPFE_FOREGROUND=1` → **stderr** (no log file). Level from **`server.json`** `server.log_level` (default `info`). |
+| **Server config** | **`./.openpfe/server.json`** (JSON) — load/save in **this crate**; see [specification.md](./specification.md#serverjson-project-config). |
 | **Security (v1)** | **`127.0.0.1` bind only** + project-scoped UDS under `./.openpfe/server/` — **no** HTTP bearer tokens, **no** IPC shared secret ([protocols.md](../../guidelines/protocols.md)). API auth deferred — [openpfe-ui/design.md](../openpfe-ui/design.md). |
 | **CORS (v1)** | **Not enabled** — embedded Web UI is same-origin; TUI/CLI HTTP clients are not browsers (no preflight). Revisit when a cross-origin dev client is required. |
 
@@ -29,7 +30,7 @@ Workspace role: [workspace-crates.md](../../workspace-crates.md).
 3. Write current **PID** to `pid` (lock still held via open fd).
 4. If `socket` path exists → **staleness check** (connect + echo); unlink if dead.
 5. Bind Unix socket at `socket`, bind HTTP on `127.0.0.1:0`; keep `http_base_url` in memory for echo.
-6. Load config (via `openpfe-core`), initialize graph (`openpfe-graph`), model paths, `openpfe-llm`.
+6. Load **`server.json`**, graph (`openpfe-graph`), **`LlmService`** (`openpfe-llm` / `llm.json` + models); build **`AppState`** for `openpfe-ui`.
 7. Serve until shutdown IPC or signal; on exit close lock fd, remove `socket`, remove or truncate `pid`.
 
 **Rust locking:** `fd-lock` on `./.openpfe/server/pid` (macOS + Linux).
@@ -78,12 +79,10 @@ If drain exceeds timeout, log a warning and proceed (fail-safe stop). Normative 
 | Mode | Destination |
 |------|-------------|
 | Detached server (CLI spawn) | `./.openpfe/server/openpfe.log` (append) |
-| `--foreground` / `OPENPFE_FOREGROUND=1` | stderr |
-
-Use `tracing` + subscriber in `openpfe-server`; CLI remains quiet unless `-v`.
+| Foreground (`--foreground` / `OPENPFE_FOREGROUND=1`) | **stderr** |
 
 ## Related
 
-- [openpfe/design.md](../openpfe/design.md) — client flock wait, diagnostics
-- [openpfe-ipc/design.md](../openpfe-ipc/design.md) — framing, echo payload
-- [architcture.md](../../architcture.md) — system diagram
+- [specification.md](./specification.md)
+- [openpfe-ui/design.md](../openpfe-ui/design.md)
+- [openpfe-ipc/design.md](../openpfe-ipc/design.md)

@@ -11,11 +11,11 @@ Follow [workspace-crates.md#phasing](../workspace-crates.md#phasing).
 | # | Plan | Phase | Scope |
 |---|------|-------|-------|
 | 001 | [001-scaffolding.md](./001-scaffolding.md) | — | Workspace root, empty members |
-| — | *(per-crate plans TBD)* | 1 | `openpfe-core`, `openpfe-ipc`, `openpfe-server`, `openpfe` |
+| — | *(per-crate plans TBD)* | 1 | `openpfe-ipc`, `openpfe-server`, `openpfe` |
 | — | *(per-crate plans TBD)* | 2 | `openpfe-graph`, `openpfe-webui`, `openpfe-ui` |
 | — | *(per-crate plans TBD)* | 3 | `openpfe-mcp`, `openpfe-llm` |
 
-Within **Phase 1**, build **`openpfe-core`** and **`openpfe-ipc`** before **`openpfe-server`** and the **`openpfe`** binary.
+Within **Phase 1**, build **`openpfe-ipc`** before **`openpfe-server`** and the **`openpfe`** binary.
 
 **Phase goals** (from [workspace-crates.md](../workspace-crates.md)):
 

@@ -7,6 +7,17 @@
 | Name | `openpfe` |
 | Modes | Client (`default`, `mcp`, `stop`) and server (`--server`, internal) |
 
+## Paths (client)
+
+Relative to **process cwd** (project root). Same literals as [openpfe-server/specification.md](../openpfe-server/specification.md#runtime-directory) — documented here for the binary; no shared path-helper crate.
+
+| Path | Purpose |
+|------|---------|
+| `./.openpfe/server/pid` | Flock target; read PID for diagnostics |
+| `./.openpfe/server/socket` | IPC connect path (echo, shutdown, MCP bridge) |
+
+Server creates and owns runtime files; client reads/waits. If `./.openpfe/` is missing, fail clearly unless a future command creates the project.
+
 ## CLI surface
 
 | Command | Behavior summary |

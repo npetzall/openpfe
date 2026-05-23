@@ -2,18 +2,24 @@
 
 **Required for v1** — not deferred.
 
-## FR-8 Models (inference)
+## FR-8 LLM (config, registry, inference)
 
-- **FR-8.4** Local inference via **llama.cpp** (`llama-cpp-2`) for configured model(s).
-- **FR-8.7** Server **may start without** a loaded model; graph and HTTP non-LLM routes remain available.
-- **FR-8.8** **Single-flight** inference in v1 — reject or 503 concurrent second request.
+- **FR-8.1** Load and write project **`./.openpfe/llm.json`** (JSON: `llm`, `catalog`).
+- **FR-8.2** Store installed models under **`USER_HOME/.openpfe/models/<id>/`** (shared).
+- **FR-8.3** Resolve active model by catalog **`id`**; validate before load.
+- **FR-8.4** Local inference via **llama.cpp** (`llama-cpp-2`).
+- **FR-8.5** Download via **HTTPS** + **sha256**; atomic install.
+- **FR-8.6** User-provided weights via catalog **`path`** or files under `models/<id>/`.
+- **FR-8.7** Server **may start** without a loaded model.
+- **FR-8.8** **Single-flight** inference.
+- **FR-8.9** **`reload_engine`** after load-affecting `llm.json` changes or active-model download complete.
 
 ## Non-functional
 
-- Inference runs on **`spawn_blocking`** — must not block tokio accept loops ([openpfe-server/design.md](../openpfe-server/design.md)).
+- On-disk config uses **`serde_json`** only (no TOML).
+- Inference on **`spawn_blocking`**.
 
 ## Related
 
-- [openpfe-core/requirements.md](../openpfe-core/requirements.md) — FR-8.1–8.3, FR-8.5–8.6
-- [openpfe-ui/requirements.md](../openpfe-ui/requirements.md) — HTTP UX
 - [specification.md](./specification.md)
+- [openpfe-ui/requirements.md](../openpfe-ui/requirements.md)

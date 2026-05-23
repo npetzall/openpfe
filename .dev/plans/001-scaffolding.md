@@ -21,11 +21,11 @@
 
 ## Goal
 
-A **compiling** Cargo workspace with nine members under `crates/`, **path dependencies only** (no external crates.io/git deps yet), wired per [dependency rules](../workspace-crates.md#dependency-rules-normative), and **no product logic** — only empty `lib.rs` / `main.rs` stubs so `cargo check --workspace` and `cargo test --workspace` succeed.
+A **compiling** Cargo workspace with eight members under `crates/` (initial scaffold had nine including `openpfe-core`; **removed** — paths documented per crate, see [workspace-crates.md](../workspace-crates.md)), **path dependencies only** (no external crates.io/git deps yet), wired per [dependency rules](../workspace-crates.md#dependency-rules-normative), and **no product logic** — only empty `lib.rs` / `main.rs` stubs so `cargo check --workspace` and `cargo test --workspace` succeed.
 
 External crates enter later via [.dev/dependencies/](../dependencies/README.md) intake, not in this plan.
 
-**Explicitly deferred:** IPC, HTTP, flock, graph store, MCP, LLM, config merge, embedded assets content, and any handler/router implementation (per-crate plans after this one).
+**Explicitly deferred:** IPC, HTTP, flock, graph store, MCP, LLM, `server.json` / `llm.json`, embedded assets content, and any handler/router implementation (per-crate plans after this one).
 
 ## Workspace members
 
@@ -37,7 +37,6 @@ External crates enter later via [.dev/dependencies/](../dependencies/README.md) 
 | `openpfe-ui` | `crates/openpfe-ui/` | library | `src/lib.rs` |
 | `openpfe-webui` | `crates/openpfe-webui/` | library | `src/lib.rs` |
 | `openpfe-mcp` | `crates/openpfe-mcp/` | library | `src/lib.rs` |
-| `openpfe-core` | `crates/openpfe-core/` | library | `src/lib.rs` |
 | `openpfe-graph` | `crates/openpfe-graph/` | library | `src/lib.rs` |
 | `openpfe-llm` | `crates/openpfe-llm/` | library | `src/lib.rs` |
 
@@ -49,23 +48,22 @@ Wire **only** the edges allowed by [dependency rules](../workspace-crates.md#dep
 
 | Crate | `path` dependencies |
 |-------|---------------------|
-| `openpfe` | `openpfe-ipc`, `openpfe-core` |
-| `openpfe-server` | `openpfe-ipc`, `openpfe-ui`, `openpfe-webui`, `openpfe-mcp`, `openpfe-core`, `openpfe-llm` |
+| `openpfe` | `openpfe-ipc` |
+| `openpfe-server` | `openpfe-ipc`, `openpfe-ui`, `openpfe-webui`, `openpfe-mcp`, `openpfe-llm` |
 | `openpfe-ipc` | *(none — domain-free)* |
-| `openpfe-ui` | `openpfe-core`, `openpfe-graph` |
+| `openpfe-ui` | `openpfe-graph`, `openpfe-llm` |
 | `openpfe-webui` | *(none — embed-only)* |
-| `openpfe-mcp` | `openpfe-core`, `openpfe-graph` |
-| `openpfe-core` | `openpfe-graph` |
+| `openpfe-mcp` | `openpfe-graph` |
 | `openpfe-graph` | *(none — no I/O crates)* |
-| `openpfe-llm` | `openpfe-core` |
+| `openpfe-llm` | *(none — self-contained under `./.openpfe/`)* |
 
-**Forbidden at any time** (verify with `cargo tree`): `openpfe-ui` → `openpfe-mcp` / `openpfe-webui` / `openpfe-server`; `openpfe-webui` → `openpfe-core` / `openpfe-ui` / `openpfe-graph`; `openpfe-mcp` → `openpfe-ui`; `openpfe` bin → `openpfe-ui` / `openpfe-mcp` / `openpfe-llm` on client paths.
+**Forbidden at any time** (verify with `cargo tree`): `openpfe-ui` → `openpfe-mcp` / `openpfe-webui` / `openpfe-server`; `openpfe-webui` → `openpfe-ui` / `openpfe-graph`; `openpfe-mcp` → `openpfe-ui`; `openpfe` bin → `openpfe-ui` / `openpfe-mcp` / `openpfe-llm` on client paths.
 
 ## Tasks
 
 ### Root workspace
 
-- [x] Add root `Cargo.toml` with `[workspace]` `resolver = "2"` and `members` listing all nine paths under `crates/` (see [physical layout](../workspace-crates.md#physical-workspace-layout)).
+- [x] Add root `Cargo.toml` with `[workspace]` `resolver = "2"` and `members` listing all workspace paths under `crates/` (see [physical layout](../workspace-crates.md#physical-workspace-layout)).
 - [x] Add `[workspace.package]` defaults: `edition = "2024"`, shared `version`, `license` / `repository` if already decided for the repo. *(No `license` field yet — not decided for the repo.)*
 - [x] Do **not** add `[workspace.dependencies]` or any crates.io/git dependency — first external crate follows [dependencies/README.md](../dependencies/README.md).
 - [x] Add `rust-toolchain.toml` (stable channel + components: `rustfmt`, `clippy`) or document MSRV in root `Cargo.toml` if org policy requires it.
@@ -92,7 +90,7 @@ Wire **only** the edges allowed by [dependency rules](../workspace-crates.md#dep
 - [x] `cargo check --workspace` exits 0.
 - [x] `cargo test --workspace` exits 0 (allow empty test suites).
 - [x] `cargo tree` shows no forbidden edges.
-- [x] All nine directories exist under `crates/` with the expected `Cargo.toml` + `src/` entry file.
+- [x] All workspace member directories exist under `crates/` with the expected `Cargo.toml` + `src/` entry file.
 
 ## Acceptance criteria
 
@@ -111,9 +109,8 @@ Wire **only** the edges allowed by [dependency rules](../workspace-crates.md#dep
 
 Per [workspace-crates phasing](../workspace-crates.md#phasing), implement **Phase 1** crates in dependency order:
 
-1. `openpfe-core`
-2. `openpfe-ipc`
-3. `openpfe-server`
-4. `openpfe` (binary)
+1. `openpfe-ipc`
+2. `openpfe-server`
+3. `openpfe` (binary)
 
-Add dedicated per-crate plans under `.dev/plans/` as they are authored (e.g. `openpfe-core.md`).
+Add dedicated per-crate plans under `.dev/plans/` as they are authored.

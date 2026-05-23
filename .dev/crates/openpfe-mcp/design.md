@@ -11,11 +11,11 @@ MCP server implementation (tools/resources) for IDE agents. Invoked from **`open
 | **Streaming** | **None in v1** — one IPC `type: mcp` envelope in/out per JSON-RPC call ([openpfe-ipc/design.md](../openpfe-ipc/design.md)). |
 | **Context shield** | All graph tools enforce [openpfe-graph/specification.md](../openpfe-graph/specification.md#traversal-limits-context-shield) defaults unless caller passes lower limits. |
 | **Git / spike automation** | **Out of v1** MCP (branching, C-SDD orchestration) — product feature, not protocol. |
-| **Handler** | `McpHandler::handle_jsonrpc(payload) -> payload` using `rmcp` or thin JSON-RPC router; state: `Arc<GraphStore>`, `Arc<EffectiveConfig>`. |
+| **Handler** | `McpHandler::handle_jsonrpc(payload) -> payload` using `rmcp` or thin JSON-RPC router; state: `Arc<GraphStore>`, server settings snapshot from **`server.json`** (loaded at startup by `openpfe-server`). |
 
 ## Scope
 
-- MCP tools/resources → `openpfe-core` / `openpfe-graph` only
+- MCP tools/resources → `openpfe-graph` (and server settings from startup state only in v1)
 - **Not** HTTP; **not** static assets; **not** direct `openpfe-llm` in v1
 
 ## Related

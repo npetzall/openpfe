@@ -15,10 +15,10 @@
 |-------|---------------|----------------|
 | `openpfe-server`, `openpfe-ipc` | Yes — listeners, accept loops | — |
 | `openpfe-ui` | Yes — axum handlers | Delegate heavy CPU to blocking pool where needed |
-| `openpfe-core`, `openpfe-graph` | No direct sockets | Public APIs sync where practical |
+| `openpfe-graph` | No direct sockets | Public APIs sync where practical |
 | `openpfe-llm` | `spawn_blocking` for inference inside server runtime | — |
 
-Do not pull HTTP or UDS into `openpfe-core` or `openpfe-graph`.
+Do not pull HTTP or UDS into `openpfe-graph`.
 
 ## Dependencies
 
@@ -50,8 +50,11 @@ Details: [security-rust.md](./security-rust.md).
 
 - HTTP handlers live in **`openpfe-ui`** only; export a `Router` (or factory) for `openpfe-server` to mount at `/api/v1`.
 - IPC message types: `echo`, `mcp`, `shutdown` only unless [openpfe-ipc/specification.md](../crates/openpfe-ipc/specification.md) is extended.
-- Domain types and path helpers live in **`openpfe-core`**; graph operations in **`openpfe-graph`**.
-- Config merge: deep-merge tables; replace scalar arrays; merge `[[models.catalog]]` by `id` — [openpfe-core/specification.md](../crates/openpfe-core/specification.md#merge-semantics-v1).
+- **cwd** = project root: [cross-cutting.md](../cross-cutting.md#project-root-convention).
+- **Paths**: normative tables in each owning crate’s `specification.md` — no shared path-helper module.
+- **`server.json`**: **`openpfe-server`** — [openpfe-server/specification.md](../crates/openpfe-server/specification.md).
+- **`llm.json`** + shared weights: **`openpfe-llm`** — [openpfe-llm/specification.md](../crates/openpfe-llm/specification.md).
+- Graph: **`openpfe-graph`**. Config serialization: **`serde_json`** only (no TOML).
 
 ## Style and quality
 

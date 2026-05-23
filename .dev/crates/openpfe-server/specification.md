@@ -2,7 +2,7 @@
 
 ## Runtime directory
 
-Path: `./.openpfe/server/` relative to **process cwd** (project root).
+Path: **`./.openpfe/server/`** relative to **process cwd** (project root). Implementations use this literal (no shared path-helper crate).
 
 | File | Purpose |
 |------|---------|
@@ -48,7 +48,33 @@ Normative API detail: [openpfe-ui/specification.md](../openpfe-ui/specification.
 | `OPENPFE_FOREGROUND=1` | Same as `--foreground` |
 | `OPENPFE_SHUTDOWN_TIMEOUT` | Drain seconds before force cancel (default **5**) |
 
-Config override: `[server] shutdown_timeout_secs`, `[server] log_level` — [openpfe-core/specification.md](../openpfe-core/specification.md).
+## `server.json` (project config)
+
+Path: **`./.openpfe/server.json`** (JSON). Loaded/saved by **`openpfe-server`**; HTTP **`GET`/`PUT` `/api/v1/server/config`** via [openpfe-ui/specification.md](../openpfe-ui/specification.md) (same document shape as API).
+
+Missing file → defaults (`#[serde(default)]`).
+
+### Document shape (v1)
+
+```json
+{
+  "server": {
+    "log_level": "info",
+    "shutdown_timeout_secs": 5
+  },
+  "http": {
+    "host": "127.0.0.1"
+  }
+}
+```
+
+| Field | Default | Purpose |
+|-------|---------|---------|
+| `server.log_level` | `"info"` | Log filter |
+| `server.shutdown_timeout_secs` | `5` | Graceful drain ([shutdown ordering](#shutdown-ordering)) |
+| `http.host` | `"127.0.0.1"` | Bind address (port remains ephemeral) |
+
+Env `OPENPFE_SHUTDOWN_TIMEOUT` may override drain seconds when set (document precedence at implementation).
 
 ## Shutdown ordering
 

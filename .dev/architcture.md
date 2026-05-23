@@ -7,7 +7,8 @@ System overview. **Normative detail** is in [crates/](./crates/); **multi-crate 
 | Topic | Decision | Detail |
 |-------|----------|--------|
 | **Server scope** | One server per project (`./.openpfe/`) | [cross-cutting.md](./cross-cutting.md) |
-| **User home** | Config defaults + shared models only | [openpfe-core/design.md](./crates/openpfe-core/design.md) |
+| **Project data** | `server.json`, `llm.json`, graph under `./.openpfe/` (JSON; **cwd** = project root) | [openpfe-server/design.md](./crates/openpfe-server/design.md), [openpfe-llm/design.md](./crates/openpfe-llm/design.md), [openpfe-graph/design.md](./crates/openpfe-graph/design.md) |
+| **Shared (machine)** | Model weights under `USER_HOME/.openpfe/models/` | [openpfe-llm/specification.md](./crates/openpfe-llm/specification.md) |
 | **IPC (v1)** | Unix domain sockets (macOS/Linux) | [openpfe-ipc/design.md](./crates/openpfe-ipc/design.md) |
 | **Graph store** | **IndraDB + RocksDB**, `./.openpfe/graph/store/` | [openpfe-graph/specification.md](./crates/openpfe-graph/specification.md) |
 | **Project root** | **cwd** = project root | [cross-cutting.md](./cross-cutting.md) |
@@ -55,7 +56,7 @@ Embedded static UI: **`openpfe-webui`** exports axum router via **`rust-embed`**
 
 Body size limits and route-specific limits: axum built-ins (e.g. `DefaultBodyLimit`) in `openpfe-ui` where uploads matter.
 
-Domain crates (`openpfe-core`, `openpfe-graph`) expose **sync** APIs where practical; async boundaries live at server, IPC, and HTTP layers.
+**`openpfe-graph`** exposes **sync** graph APIs where practical; async boundaries live at server, IPC, and HTTP layers.
 
 ## Purpose
 
@@ -123,7 +124,7 @@ Flow detail: [cross-cutting.md](./cross-cutting.md#multi-crate-flows), [openpfe/
 
 ## Rust workspace
 
-**9 members** in v1. Members, deps, phasing: **[workspace-crates.md](./workspace-crates.md)**.
+**8 members** in v1. Members, deps, phasing: **[workspace-crates.md](./workspace-crates.md)**.
 
 ## External alignment
 

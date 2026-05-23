@@ -14,7 +14,7 @@ Embedded graph store under `./.openpfe/graph/`. **No** HTTP, IPC, or MCP.
 | **Backup** | Copy `./.openpfe/graph/` directory when server is stopped. |
 | **Ownership** | Server process owns writes; `openpfe-ui` / `openpfe-mcp` call sync store API via `Arc`. |
 | **Format** | DB-native from first ship; no legacy markdown problem-tree in product. |
-| **Workspace boundary** | Separate crate from `openpfe-core`; phase 2 implementation. |
+| **Workspace boundary** | Dedicated graph crate; phase 2 implementation. |
 
 ## `GraphStore` trait (v1)
 

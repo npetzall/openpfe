@@ -10,5 +10,4 @@ name = "openpfe"
 path = "src/main.rs"
 
 [dependencies]
-openpfe-core = { path = "../openpfe-core" }
 openpfe-ipc = { path = "../openpfe-ipc" }

@@ -14,9 +14,8 @@ Convention: [workspace-crates.md#documentation-convention](../workspace-crates.m
 | [openpfe-ui/](./openpfe-ui/) | `openpfe-ui` | HTTP API for humans (Web UI, TUI) |
 | [openpfe-webui/](./openpfe-webui/) | `openpfe-webui` | Embedded browser assets |
 | [openpfe-mcp/](./openpfe-mcp/) | `openpfe-mcp` | MCP for agents |
-| [openpfe-core/](./openpfe-core/) | `openpfe-core` | Config, paths, domain types |
 | [openpfe-graph/](./openpfe-graph/) | `openpfe-graph` | Embedded graph store (+ [graph-db-evaluation.md](./openpfe-graph/graph-db-evaluation.md)) |
-| [openpfe-llm/](./openpfe-llm/) | `openpfe-llm` | llama.cpp (v1, required) |
+| [openpfe-llm/](./openpfe-llm/) | `openpfe-llm` | `llm.json`, shared model store, llama.cpp (v1) |
 
 ## Each folder
 

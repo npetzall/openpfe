@@ -1,6 +1,6 @@
-/# Testing — JavaScript
+# Testing — JavaScript
 
-**Read when:** adding automated tests for `openpfe-webui` assets or JS that calls `/api/v1`.
+**Read when:** adding automated tests for `openpfe-webui` sources or JS that calls `/api/v1`.
 
 **Normative refs:** [openpfe-webui/design.md](../crates/openpfe-webui/design.md), [openpfe-ui/specification.md](../crates/openpfe-ui/specification.md).
 
@@ -11,18 +11,21 @@
 
 ## v1 decisions
 
-- **No bundler** — production code under `assets/`; the Node test runner imports those modules from the sibling `tests/` tree.
-- **Tests beside `assets/`** — all JS tests under `crates/openpfe-webui/tests/` (not inside `assets/`), mirroring `assets/js/` layout.
+- **[Vitest](https://vitest.dev/)** + **jsdom** — shares **`vite.config.js`** resolve/alias with the app; no separate test bundler.
+- **Import authoring sources** from **`src/js/`** (via `@` alias or relative paths), not built files under **`assets/`**.
+- **Tests beside `src/`** — all JS tests under `crates/openpfe-webui/tests/` (not inside `src/` or `assets/`), mirroring **`src/js/`** layout.
+- **Production build** — **[Vite](https://vite.dev/)** `npm run build` → **`assets/`**; unit tests do not require a successful build unless testing integration with built artifacts (unusual in v1).
 
 ## Crate layout
 
 ```
 crates/openpfe-webui/
-  assets/          # embedded and served — production only
+  src/             # authoring — Vitest imports from here
     js/
       api.js
       graph/
         view.js
+  assets/          # vite build output — not used by default unit tests
   tests/           # never embedded
     js/
       api.test.js
@@ -35,7 +38,7 @@ crates/openpfe-webui/
 
 | Layer | Tooling | Scope |
 |-------|---------|--------|
-| Unit | **Vitest** + **jsdom** | `api.js`, graph view state, parsers/formatters |
+| Unit | **Vitest** + **jsdom** (via Vite config) | `api.js`, graph view state, parsers/formatters |
 | API mock | `fetch` mock / MSW | Returns fixture JSON for `/api/v1/...` |
 | E2E (optional) | Playwright against local server | Smoke: load embed, one API round-trip |
 
@@ -43,13 +46,13 @@ Normative detail: [openpfe-webui/design.md](../crates/openpfe-webui/design.md#ja
 
 ## Embed
 
-Embed **only** `assets/`. The `tests/` directory is outside the embed root — no exclude globs needed for test files.
+Embed **only** **`assets/`** (Vite build output). **`src/`** and **`tests/`** are outside the embed root — no exclude globs needed for source or test files.
 
 ## Conventions
 
-- **Naming:** `tests/js/<path>/<module>.test.js` mirrors `assets/js/<path>/<module>.js`.
+- **Naming:** `tests/js/<path>/<module>.test.js` mirrors **`src/js/<path>/<module>.js`**.
 - **Fixtures:** `tests/js/__fixtures__/` or `tests/js/<path>/__fixtures__/` — small JSON only.
-- **Imports:** via Vitest `resolve.alias` (`@assets` → `assets/js`) or relative `../../assets/js/…` — [openpfe-webui/design.md](../crates/openpfe-webui/design.md#javascript-tests-v1).
+- **Imports:** Vitest `resolve.alias` in **`vite.config.js`** (e.g. `@` → `src`) — [openpfe-webui/design.md](../crates/openpfe-webui/design.md#javascript-tests-v1). Prefer alias over long relative paths into `src/`.
 
 ## Mocking HTTP
 
@@ -69,7 +72,8 @@ Embed **only** `assets/`. The `tests/` directory is outside the embed root — n
 
 ## CI
 
-- JS test job independent of `cargo test` but run in same pipeline when repo has both.
+- JS job: `npm ci`, `npm test` (Vitest); **`cargo build`** / **`cargo test`** already run the web UI npm build via **`openpfe-webui/build.rs`** unless **`OPENPFE_SKIP_WEBUI_BUILD=1`**.
+- JS test job independent of `cargo test` but in the same pipeline when the repo has both.
 - Fast unit suite only in default PR gate; e2e marked optional or nightly if slow.
 
 ## Related

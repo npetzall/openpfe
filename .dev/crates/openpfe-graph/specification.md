@@ -7,7 +7,7 @@
 | `./.openpfe/graph/store/` | IndraDB **RocksDB** datastore files |
 | `./.openpfe/graph/` | Parent dir; may add non-DB metadata later (keep `store/` for engine) |
 
-Open with `GraphStore::open(project_graph_dir().join("store"))` — see [openpfe-core/specification.md](../openpfe-core/specification.md#path-resolution).
+Open with `GraphStore::open` at **`./.openpfe/graph/store/`** (relative to **process cwd** = project root). No shared path-helper API.
 
 ## Schema (v1)
 

@@ -2,7 +2,7 @@
 
 Track research for an **embedded**, **Rust-native** graph store for the problem graph (nodes, dependency edges, component clusters).
 
-**Decided:** `openpfe-graph` is a **separate workspace crate** (not merged into `openpfe-core`) — see [design.md](./design.md).
+**Decided:** `openpfe-graph` is a **separate workspace crate** — see [design.md](./design.md).
 
 ## Decision (2026-05)
 

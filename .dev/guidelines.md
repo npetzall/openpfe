@@ -12,7 +12,7 @@ How we implement **openpfe** consistently across the Rust workspace and embedded
 
 3. **One transport per audience (v1).** Humans (browser, TUI): **HTTP** `/api/v1/…` via `openpfe-ui` only. Agents (IDE): **IPC** `type: mcp` via `openpfe-mcp` only. CLI control: **IPC** `echo` / `shutdown`. Do not duplicate graph/config APIs on IPC for TUI or browser.
 
-4. **Project scope is cwd.** **cwd = project root**; data under `./.openpfe/`, one server per project. No global server in user home; HTTP base URL comes from IPC echo only — never hard-code or persist a port in client code.
+4. **Project scope is cwd.** **cwd = project root**; JSON config (`server.json`, `llm.json`), graph, and server runtime under `./.openpfe/`. Model **weights** under **`USER_HOME/.openpfe/models/`** (shared). **JSON** for config and API — no TOML. One server per project. HTTP base URL from IPC echo only.
 
 5. **Minimize scope; match existing docs and code.** Smallest correct change; no drive-by refactors. When adding a feature, update the owning crate’s `.dev/crates/<name>/` docs in the same change when behavior is normative.
 

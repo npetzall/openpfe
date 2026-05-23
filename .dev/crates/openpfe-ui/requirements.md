@@ -2,18 +2,15 @@
 
 ## FR-6 HTTP / human API
 
-- **FR-6.2** Problem graph interaction per PFE (drill-down, architecture view) via [specification.md](./specification.md#graph) routes; live updates via **polling** in v1.
-- **FR-6.3** Configuration UI: read merged config, write project overrides.
-- **FR-6.4** Model selection and download into `USER_HOME/.openpfe/models`.
-
-Human-facing API stability for **Web UI** and **TUI**.
+- **FR-6.2** Problem graph interaction via [specification.md](./specification.md#graph); **polling** in v1.
+- **FR-6.3** Expose **`GET`/`PUT` `/server/config`** — JSON same shape as `./.openpfe/server.json` ([openpfe-server/specification.md](../openpfe-server/specification.md)).
+- **FR-6.4** Expose LLM routes — **`llm.json`**, models, download, active model, inference — via **`LlmService`**; orchestrate **`reload_engine`** ([openpfe-llm/specification.md](../openpfe-llm/specification.md)).
 
 ## Non-goals
 
-- MCP tools → `openpfe-mcp`
-- Serving static files → `openpfe-webui`
-- **FR-6.1** embedded assets → `openpfe-webui`
+- MCP, static embed, TOML config, persisting config files (delegate to server/llm crates).
 
 ## Related
 
 - [openpfe-webui/requirements.md](../openpfe-webui/requirements.md)
+- [openpfe-server/requirements.md](../openpfe-server/requirements.md) — FR-7 `server.json`

@@ -27,7 +27,7 @@ sequenceDiagram
 
 ## Implementation rules
 
-1. **Delegate domain work** to `openpfe-core` and `openpfe-graph` — MCP layer maps protocol ↔ domain only.
+1. **Delegate domain work** to `openpfe-graph` — MCP layer maps protocol ↔ domain only.
 2. **Context shield:** tools return the **minimum** graph context for the requested component/task (per [openpfe_tooling.md](../../openpfe_tooling.md)); avoid dumping the full graph by default.
 3. **Tool/resource names** are stable once published; breaking renames require version note in `openpfe-mcp/specification.md`.
 4. **Errors:** map domain failures to MCP-compliant JSON-RPC errors; do not leak stack traces on stdio.

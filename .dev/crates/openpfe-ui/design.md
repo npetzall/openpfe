@@ -8,37 +8,26 @@ Workspace role: [workspace-crates.md](../../workspace-crates.md).
 
 | Topic | Decision |
 |-------|----------|
-| **HTTP framework** | **axum** — export `Router` (or factory) for `openpfe-server` to mount on `127.0.0.1:0`. Cross-cutting HTTP middleware (**tower-http**) lives in `openpfe-server`, not this crate. |
-| **Human data API** | REST `/api/v1/…` only for graph, config, models (Web UI + TUI). No duplicate IPC graph API. |
-| **Runtime** | Handlers are `async` on **tokio**; call sync `openpfe-core` / `openpfe-graph` from handlers or `spawn_blocking` as needed. |
-| **Live updates (v1)** | **REST + client poll** — no WebSocket or SSE in v1. UI may poll `GET /api/v1/graph/overview` (or ETag) on an interval. |
-| **API auth** | **Deferred** — no tokens in v1 ([openpfe-server/design.md](../openpfe-server/design.md)). |
+| **HTTP framework** | **axum** — export `Router` for `openpfe-server` to mount on `127.0.0.1:0`. **tower-http** on composed router in server. |
+| **Wire format** | **JSON** only for API bodies and on-disk config (no TOML in product). |
+| **Human data API** | REST `/api/v1/…` for graph, `server.json`, `llm.json`, models, inference. |
+| **Orchestration** | Handlers call traits/services in **`AppState`**: server settings (`openpfe-server`), **`LlmService`** (`openpfe-llm`). After LLM mutations, invoke **`reload_engine`**. |
+| **`AppState` wiring** | **`openpfe-server`** constructs `AppState` (loaded `server.json`, `Arc<dyn LlmService>`, graph) and passes to `openpfe_ui::api_router` — keeps **`openpfe-ui` ↛ `openpfe-server`** dependency. |
+| **Runtime** | Async handlers on **tokio**; sync domain on thread pool where needed. |
+| **Live updates (v1)** | REST + **poll** — no WebSocket/SSE. |
+| **API auth** | **Deferred** — no tokens in v1. |
 
 ## Scope
 
-- Routes under `/api/v1/…` — graph, config, models
-- Handlers call `openpfe-core`, `openpfe-graph`, `openpfe-llm`
-- Export router / handler factory for `openpfe-server` to mount
-- Browser UI is **same-origin** with static assets (served together from `openpfe-server`). **No CORS** in v1 ([openpfe-server/design.md](../openpfe-server/design.md)).
-
-## API surface (design intent)
-
-- REST under `/api/v1/…` for graph CRUD, config read/write, model list/download triggers
-- Normative routes: [specification.md](./specification.md)
+- Route table: [specification.md](./specification.md)
+- Product view needs: [openpfe-webui/assets/README.md](../openpfe-webui/assets/README.md)
 
 ## Out of scope
 
-- Static HTML/CSS/JS → **`openpfe-webui`**
-- IPC, MCP, CLI
-- Socket bind → **`openpfe-server`**
-
-## Consumers
-
-| Consumer | How |
-|----------|-----|
-| Browser | `fetch('/api/v1/…')` |
-| TUI | HTTP to `http_base_url` from IPC echo — all data paths; no graph-over-IPC |
-| CLI | IPC for control; optional HTTP later for rich CLI |
+- Static assets → **`openpfe-webui`**
+- Owning `server.json` / `llm.json` schemas → **`openpfe-server`** / **`openpfe-llm`**
+- Project path literals → owning crates’ `specification.md` (server, graph, llm); **cwd** convention in [cross-cutting.md](../../cross-cutting.md)
+- IPC, MCP, socket bind
 
 ## Related
 

@@ -8,6 +8,14 @@
 - **FR-1.2** Server enforces exclusivity with **non-blocking exclusive flock** on `./.openpfe/server/pid`; hold fd until exit.
 - **FR-1.4** Stale **`socket`** after crash must not block new server (unlink when connect/echo fails); stale **lock** must not persist after process death.
 
+### FR-7 Paths and server config
+
+- **FR-7.0** Resolve server runtime dir **`./.openpfe/server/`** and config **`./.openpfe/server.json`** from **process cwd** — [specification.md](./specification.md).
+- **FR-7.1** Load **`./.openpfe/server.json`** when present (`server`, `http` objects).
+- **FR-7.2** Missing file is not an error; use defaults.
+- **FR-7.3** Persist with **`serde_json`** only (no TOML).
+- **FR-7.4** HTTP read/write via **`openpfe-ui`** routes — [specification.md](./specification.md#serverjson-project-config).
+
 ### FR-6 HTTP (listener)
 
 - **FR-6.5** Bind **`127.0.0.1` only** in v1; no HTTP or IPC auth tokens ([design.md](./design.md)).
