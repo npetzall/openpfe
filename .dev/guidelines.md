@@ -16,12 +16,15 @@ How we implement **openpfe** consistently across the Rust workspace and embedded
 
 5. **Minimize scope; match existing docs and code.** Smallest correct change; no drive-by refactors. When adding a feature, update the owning crate’s `.dev/crates/<name>/` docs in the same change when behavior is normative.
 
-6. **Dependency hygiene.** New or upgraded **external** crates are recorded under [`.dev/dependencies/<crate-name>/`](./dependencies/README.md) **before** any `Cargo.toml` edit; after adding to the manifest, run **`cargo audit`** immediately (see [security-rust.md](./guidelines/security-rust.md)).
+6. **Dependency hygiene.** New or upgraded **external** crates are recorded under [`.dev/dependencies/<crate-name>/`](./dependencies/README.md) **before** any `Cargo.toml` edit; after adding to the manifest, run **`cargo audit`** immediately (see [security-rust.md](./guidelines/security-rust.md)). Plans with external deps: **intake → pause → implement** ([plans.md](./guidelines/plans.md)).
+
+7. **Plan progress.** While executing [`.dev/plans/`](./plans/README.md), update that plan’s **Status** and task checkboxes as work completes — do not leave the plan stale until the end ([plans.md#tracking-progress-during-implementation](./guidelines/plans.md#tracking-progress-during-implementation)).
 
 ## Layout
 
 ```
 .dev/guidelines/
+  plans.md
   coding-rust.md
   coding-javascript.md
   webdesign.md
@@ -38,6 +41,7 @@ Read a file when your task touches its **scope**. Paths are repo-relative from t
 
 | Path | Read when | Scope |
 |------|-----------|--------|
+| [guidelines/plans.md](./guidelines/plans.md) | Writing or executing `.dev/plans/*.md`; adding external crates as part of a plan | **Intake → pause → implement**, **track progress in-plan** (checkboxes + Status), human review, example |
 | [guidelines/coding-rust.md](./guidelines/coding-rust.md) | Editing or adding Rust workspace crates, CLI, server, IPC, graph, LLM | Style, async/sync boundaries, **ports/adapters** for workspace deps, errors, crate layout |
 | [guidelines/coding-javascript.md](./guidelines/coding-javascript.md) | Editing embedded Web UI JS under `openpfe-webui` | Modules, API client, no backend logic in static assets |
 | [guidelines/webdesign.md](./guidelines/webdesign.md) | HTML/CSS/UI for the embedded browser UI | Layout, a11y, same-origin API usage, asset layout |
@@ -52,6 +56,7 @@ Read a file when your task touches its **scope**. Paths are repo-relative from t
 
 | Guideline | Typical tasks |
 |-----------|----------------|
+| [plans.md](./guidelines/plans.md) | Splitting plan work into intake vs implementation; updating plan checkboxes/Status as tasks complete |
 | [coding-rust.md](./guidelines/coding-rust.md) | New crate code, axum handlers, IPC server, graph store, CLI, workspace **ports** for mocks |
 | [coding-javascript.md](./guidelines/coding-javascript.md) | `assets/js/`, API client, graph UI logic in the browser |
 | [webdesign.md](./guidelines/webdesign.md) | `assets/` HTML/CSS, drill-down / architecture views |

@@ -109,8 +109,5 @@ Wire **only** the edges allowed by [dependency rules](../workspace-crates.md#dep
 
 Per [workspace-crates phasing](../workspace-crates.md#phasing), implement **Phase 1** crates in dependency order:
 
-1. `openpfe-ipc`
-2. `openpfe-server`
-3. `openpfe` (binary)
-
-Add dedicated per-crate plans under `.dev/plans/` as they are authored.
+1. In parallel: [002-openpfe-impl.md](./002-openpfe-impl.md), [003-openpfe-ipc-impl.md](./003-openpfe-ipc-impl.md), [004-openpfe-server-impl.md](./004-openpfe-server-impl.md)
+2. Wire: [005-openpfe-wiring.md](./005-openpfe-wiring.md)

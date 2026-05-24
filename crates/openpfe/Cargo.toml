@@ -11,3 +11,16 @@ path = "src/main.rs"
 
 [dependencies]
 openpfe-ipc = { path = "../openpfe-ipc" }
+openpfe-server = { path = "../openpfe-server" }
+tokio = { workspace = true }
+clap = { workspace = true }
+serde_json = { workspace = true }
+async-trait = { workspace = true }
+libc = { workspace = true }
+webbrowser = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+tempfile = "3.20"
+fd-lock = { workspace = true }
+openpfe-ipc = { path = "../openpfe-ipc" }

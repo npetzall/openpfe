@@ -40,6 +40,8 @@ Do not run `cargo build`, `cargo check`, or `cargo update` between step 3 and st
 
 Details: [security-rust.md](./security-rust.md).
 
+When work is driven by an [implementation plan](../plans/README.md) that adds external crates, complete intake and the **human pause** in [plans.md](./plans.md) before writing product `src/` or running `cargo test` / `cargo build`.
+
 ## Workspace crate boundaries (ports)
 
 When crate **A** depends on workspace crate **B**, **A** must not call **B**’s API from command/handler/business modules directly. Use a **crate-local port** so tests can mock **B** without real I/O.

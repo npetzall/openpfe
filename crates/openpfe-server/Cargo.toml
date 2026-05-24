@@ -6,10 +6,18 @@ repository.workspace = true
 publish.workspace = true
 
 [lib]
+path = "src/lib.rs"
 
 [dependencies]
 openpfe-ipc = { path = "../openpfe-ipc" }
-openpfe-llm = { path = "../openpfe-llm" }
-openpfe-mcp = { path = "../openpfe-mcp" }
-openpfe-ui = { path = "../openpfe-ui" }
-openpfe-webui = { path = "../openpfe-webui" }
+tokio = { workspace = true }
+axum = { workspace = true }
+fd-lock = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+tempfile = "3.20"
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls"] }

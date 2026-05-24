@@ -15,7 +15,7 @@ No external crate is added to root or member `Cargo.toml` until a folder exists 
 | `scan.md` | `cargo audit` and other scan outputs (append as tools are added) |
 | `verdict.md` | Accept / reject / defer; version; what landed in the workspace |
 
-**Lock preview:** [.dev/scripts/dependency-lock-diff.sh](../scripts/dependency-lock-diff.sh) copies `Cargo.toml` / `Cargo.lock` to gitignored `Cargo-with-<crate-name>.*`, resolves against the trial manifest, and diffs lockfiles without leaving the workspace lock changed.
+**Lock preview:** [.dev/scripts/dependency-lock-diff.sh](../scripts/dependency-lock-diff.sh) backs up manifests, runs `cargo add` then `cargo update --workspace --dry-run`, and restores manifests on exit.
 
 ## `cargo audit` (RustSec)
 
