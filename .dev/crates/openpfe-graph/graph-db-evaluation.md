@@ -56,7 +56,7 @@ Full write-up: **[indradb-outcome.md](./indradb-outcome.md)**.
 |-----------|---------|--------|
 | **[Grafeo](https://github.com/GrafeoDB/grafeo)** | **Spike (macOS pass w/ caveats)** | LPG, embedded, BM25/text for S6, Apache-2.0 — [grafeo-outcome.md](./grafeo-outcome.md), [spike-grafeo.md](./spike-grafeo.md) |
 | **[nanograph](https://github.com/nanograph/nanograph)** | **Spike (macOS pass w/ caveats)** | Folder store, `.pg` schema, S6 BM25 + S6+ `find_similar`; export-read latency + protoc/heavy deps — [nanograph-outcome.md](./nanograph-outcome.md), [spike-nanograph.md](./spike-nanograph.md) |
-| **[SparrowDB](https://github.com/ryaker/SparrowDB)** | **Spike (parallel)** | Embedded, WAL + crash recovery, Cypher internally, MIT, pure-Rust storage — [spike-sparrowdb.md](./spike-sparrowdb.md) |
+| **[SparrowDB](https://github.com/ryaker/SparrowDB)** | **Spike (macOS pass w/ caveats)** | LPG, WAL, MIT, pure-Rust — [sparrowdb-outcome.md](./sparrowdb-outcome.md), [spike-sparrowdb.md](./spike-sparrowdb.md); S6 via `CONTAINS`/partial FTS; slow debug `subgraph` on ~1k nodes |
 | **[indradb](https://github.com/indradb/indradb)** + RocksDB | **Rejected** | C++ RocksDB, sled path not viable — [spike-indradb.md](./spike-indradb.md) |
 | [LoraDB](https://github.com/lora-db/lora) | **Watch** | New embedded LPG + vectors; license/community immature — defer unless shortlist spikes fail |
 | [BikoDB](https://github.com/DioCrafts/BikoDB) | **Watch** | Multi-model graph+vector; confirm embeddable API vs server-first before spike |

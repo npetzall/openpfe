@@ -204,3 +204,4 @@ Prioritized for a **follow-up spike** or product phase 2 — not required to clo
 - [graph-db-spike.md](./graph-db-spike.md)
 - [graph-db-evaluation.md](./graph-db-evaluation.md)
 - [spike-indradb.md](./spike-indradb.md) — pending comparison baseline
+- [sparrowdb-outcome.md](./sparrowdb-outcome.md) — LPG shortlist peer (SparrowDB spike)

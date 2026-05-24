@@ -2,7 +2,7 @@
 
 **Read when:** proving an embedded engine can back `openpfe-graph` before phase 2 implementation merges.
 
-**Status:** Grafeo and nanograph **macOS complete** ([grafeo-outcome.md](./grafeo-outcome.md), [nanograph-outcome.md](./nanograph-outcome.md)); SparrowDB pending — engine choice in [graph-db-evaluation.md](./graph-db-evaluation.md) is **provisional** until shortlist spikes pass or fail against this bar.
+**Status:** Grafeo, nanograph, and SparrowDB **macOS complete** ([grafeo-outcome.md](./grafeo-outcome.md), [nanograph-outcome.md](./nanograph-outcome.md), [sparrowdb-outcome.md](./sparrowdb-outcome.md)); engine choice in [graph-db-evaluation.md](./graph-db-evaluation.md) is **provisional** until shortlist spikes are compared against this bar.
 
 ## Purpose
 
@@ -14,7 +14,7 @@ Each engine spike is a **time-boxed experiment** (throwaway crate or short-lived
 |--------------|----------|
 | Grafeo (embedded LPG) | [spike-grafeo.md](./spike-grafeo.md) — [outcome](./grafeo-outcome.md) |
 | nanograph (on-device LPG) | [spike-nanograph.md](./spike-nanograph.md) — [outcome](./nanograph-outcome.md) |
-| SparrowDB (embedded LPG + WAL) | [spike-sparrowdb.md](./spike-sparrowdb.md) |
+| SparrowDB (embedded LPG + WAL) | [spike-sparrowdb.md](./spike-sparrowdb.md) — [outcome](./sparrowdb-outcome.md) |
 | ~~IndraDB 5.x + RocksDB~~ | [spike-indradb.md](./spike-indradb.md) — **closed (Fail)** |
 
 Run **each shortlist** spike on **macOS and Linux** before locking `specification.md` engine dependency lines.
