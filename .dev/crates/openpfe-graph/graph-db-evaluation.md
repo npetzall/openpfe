@@ -55,7 +55,7 @@ Full write-up: **[indradb-outcome.md](./indradb-outcome.md)**.
 | Candidate | Verdict | Notes |
 |-----------|---------|--------|
 | **[Grafeo](https://github.com/GrafeoDB/grafeo)** | **Spike (macOS pass w/ caveats)** | LPG, embedded, BM25/text for S6, Apache-2.0 — [grafeo-outcome.md](./grafeo-outcome.md), [spike-grafeo.md](./spike-grafeo.md) |
-| **[nanograph](https://github.com/nanograph/nanograph)** | **Spike (parallel)** | On-device folder, schema-as-code, FTS + semantic + hybrid search, MIT, Rust/Lance/Arrow — [spike-nanograph.md](./spike-nanograph.md) |
+| **[nanograph](https://github.com/nanograph/nanograph)** | **Spike (macOS pass w/ caveats)** | Folder store, `.pg` schema, S6 BM25 + S6+ `find_similar`; export-read latency + protoc/heavy deps — [nanograph-outcome.md](./nanograph-outcome.md), [spike-nanograph.md](./spike-nanograph.md) |
 | **[SparrowDB](https://github.com/ryaker/SparrowDB)** | **Spike (parallel)** | Embedded, WAL + crash recovery, Cypher internally, MIT, pure-Rust storage — [spike-sparrowdb.md](./spike-sparrowdb.md) |
 | **[indradb](https://github.com/indradb/indradb)** + RocksDB | **Rejected** | C++ RocksDB, sled path not viable — [spike-indradb.md](./spike-indradb.md) |
 | [LoraDB](https://github.com/lora-db/lora) | **Watch** | New embedded LPG + vectors; license/community immature — defer unless shortlist spikes fail |
