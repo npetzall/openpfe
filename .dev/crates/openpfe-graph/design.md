@@ -6,8 +6,8 @@ Embedded graph store under `./.openpfe/graph/`. **No** HTTP, IPC, or MCP.
 
 | Topic | Decision |
 |-------|----------|
-| **Engine (v1)** | **[IndraDB](https://github.com/indradb/indradb)** + **RocksDB** datastore (`rocksdb-datastore` feature). Evaluation: [graph-db-evaluation.md](./graph-db-evaluation.md). |
-| **Persistence path** | `./.openpfe/graph/store/` — RocksDB directory; created on server start. |
+| **Engine (v1)** | **TBD** after engine spikes — [graph-db-evaluation.md](./graph-db-evaluation.md). IndraDB **rejected**; shortlist: Grafeo, nanograph, SparrowDB. |
+| **Persistence path** | `./.openpfe/graph/` (engine-specific subdirectory); created on server start. |
 | **Graph model** | **Labeled property graph** — not RDF in v1. |
 | **Query (v1)** | `GraphStore` trait + IndraDB adapter; **no** exposed Cypher/Datalog. |
 | **Concurrency** | **Single writer** (server); in-process readers only. |
@@ -18,7 +18,7 @@ Embedded graph store under `./.openpfe/graph/`. **No** HTTP, IPC, or MCP.
 
 ## `GraphStore` trait (v1)
 
-Abstraction over IndraDB so HTTP/MCP do not depend on engine types directly:
+Abstraction over the chosen engine so HTTP/MCP do not depend on engine types directly:
 
 | Operation | Purpose |
 |-----------|---------|
@@ -36,13 +36,13 @@ Heavy traversals may run on `spawn_blocking` from async HTTP handlers.
 
 ## Scope
 
-- Engine adapter (IndraDB RocksDB)
+- Engine adapter (winner of graph DB spikes)
 - Schema constants for node/edge types — [specification.md](./specification.md)
 - Open/create at `./.openpfe/graph/store/` when server starts
 
 ## Spikes (engine proof)
 
-Before phase 2 merge, run [graph-db-spike.md](./graph-db-spike.md): [spike-indradb.md](./spike-indradb.md), [spike-grafeo.md](./spike-grafeo.md). Update engine lines here and in [specification.md](./specification.md) from spike outcomes.
+Before phase 2 merge, run [graph-db-spike.md](./graph-db-spike.md): [spike-grafeo.md](./spike-grafeo.md), [spike-nanograph.md](./spike-nanograph.md), [spike-sparrowdb.md](./spike-sparrowdb.md). Update engine lines here and in [specification.md](./specification.md) from spike outcomes.
 
 ## Related
 

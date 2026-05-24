@@ -4,7 +4,7 @@
 
 **Engine:** [IndraDB](https://github.com/indradb/indradb) with **`rocksdb-datastore`** feature.
 
-**Provisional v1 choice:** documented in [graph-db-evaluation.md](./graph-db-evaluation.md) — confirm or reject here.
+**Provisional v1 choice:** was documented in [graph-db-evaluation.md](./graph-db-evaluation.md) — **rejected**. See [indradb-outcome.md](./indradb-outcome.md).
 
 ---
 
@@ -12,7 +12,7 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | Not started |
+| **Status** | **Closed — Fail** (2026-05-24) |
 | **Owner** | _unassigned_ |
 | **Branch / crate** | _e.g. `spike/indradb` or `crates/openpfe-graph-spike`_ |
 | **Commit** | _SHA when complete_ |
@@ -130,15 +130,13 @@ Optional — [graph-db-spike.md](./graph-db-spike.md#stretch-goals--search--comp
 
 ## Results
 
-_Fill when spike completes._
-
 ### Summary
 
 | Item | Result |
 |------|--------|
-| **Recommendation** | ☐ Pass ☐ Pass with caveats ☐ Fail |
-| **Caveats** | _e.g. S6 needs sidecar index; compile time_ |
-| **Pinned version** | `indradb = _._._` |
+| **Recommendation** | **Fail** |
+| **Caveats** | RocksDB/`librocksdb-sys` did not compile (C++ `cstdint` / toolchain). No production Rust disk backend. `indradb-sled` 0.1.0 not viable for IndraDB 5.x. MPL-2.0. |
+| **Pinned version** | `indradb-lib = 5.0.0` (intake only; spike implementation not completed) |
 
 ### Measurements
 

@@ -2,20 +2,22 @@
 
 **Read when:** proving an embedded engine can back `openpfe-graph` before phase 2 implementation merges.
 
-**Status:** Not started — engine choice in [graph-db-evaluation.md](./graph-db-evaluation.md) is **provisional** until both engine spikes pass or fail against this bar.
+**Status:** Grafeo **macOS complete** ([grafeo-outcome.md](./grafeo-outcome.md)); nanograph and SparrowDB pending — engine choice in [graph-db-evaluation.md](./graph-db-evaluation.md) is **provisional** until shortlist spikes pass or fail against this bar.
 
 ## Purpose
 
-The evaluation doc records constraints and a **default** engine (IndraDB). These spikes validate that choice — and **[Grafeo](https://github.com/GrafeoDB/grafeo)** as an alternative — against **real PFE workloads**, not only “embedded + thousands of nodes.”
+The evaluation doc records constraints and an engine **shortlist**. Each spike validates candidates against **real PFE workloads**, not only “embedded + thousands of nodes.”
 
 Each engine spike is a **time-boxed experiment** (throwaway crate or short-lived branch). Outcome: update [graph-db-evaluation.md](./graph-db-evaluation.md) with pass/fail, measurements, and the engine decision for v1.
 
 | Engine spike | Document |
 |--------------|----------|
-| IndraDB 5.x + RocksDB | [spike-indradb.md](./spike-indradb.md) |
 | Grafeo (embedded LPG) | [spike-grafeo.md](./spike-grafeo.md) — [outcome](./grafeo-outcome.md) |
+| nanograph (on-device LPG) | [spike-nanograph.md](./spike-nanograph.md) |
+| SparrowDB (embedded LPG + WAL) | [spike-sparrowdb.md](./spike-sparrowdb.md) |
+| ~~IndraDB 5.x + RocksDB~~ | [spike-indradb.md](./spike-indradb.md) — **closed (Fail)** |
 
-Run **both** spikes on **macOS and Linux** before locking `specification.md` engine dependency lines.
+Run **each shortlist** spike on **macOS and Linux** before locking `specification.md` engine dependency lines.
 
 ---
 
@@ -30,7 +32,7 @@ Normative schema and limits: [specification.md](./specification.md). MCP/UI surf
 | **S3** | **Architecture lens** — clusters, optional `component`, `interfaces` edges with contract fields | **Required** | Can list/filter by `type`; bounded slice includes contract props on `interfaces` edges |
 | **S4** | **MCP work area** — bounded `subgraph(cluster_id)` for context shield | **Required** | Default `max_depth=3`, `max_nodes=200`; hard stop before 500 nodes; no full-graph scan API used |
 | **S5** | **DAG validation** — `depends_on` must be acyclic | **Required** | Detect injected cycle; return cycle path(s) suitable for UI/MCP |
-| **S6** | **Similar / existing problem** — “is this already recorded?” (lexical) | **Grafeo required; IndraDB optional** | IndraDB: document “not in engine” + acceptable v1 workaround (e.g. scan `list_nodes` on small fixture). Grafeo: BM25 or documented text index returns relevant hits on fixture |
+| **S6** | **Similar / existing problem** — “is this already recorded?” (lexical) | **Required** for engines with text index; document workaround if absent | BM25 or documented text index returns relevant hits on fixture; otherwise document acceptable v1 workaround (e.g. scan `list_nodes` on small fixture) |
 | **S6+** | **Search & compare (stretch)** — ranked candidates, semantic/structural signals | **Stretch** — see below | Not required to pass engine spike; results inform v1 vs phase 2 and Grafeo vs sidecar index |
 
 **Out of spike scope (v1 product, later work):** exposing Cypher/GQL on HTTP/MCP; LLM drill-down write tools (`openpfe_suggest_subproblems`); multi-process writers; export/import; full-text on entire repo (non-graph sources).
@@ -91,7 +93,7 @@ Extend [§ C. PFE seed fixture](#c-pfe-seed-fixture-all-spikes) when running S6+
 | Stretch outcome | Implication |
 |-----------------|-------------|
 | Grafeo S6+ strong (lexical + optional semantic) with acceptable build/audit | Stronger case for Grafeo as single store |
-| IndraDB S1–S5 pass; S6+ only via sidecar/Tantivy/LLM embeddings | IndraDB + separate search module in phase 2 |
+| Shortlist engine S1–S5 pass; S6+ only via sidecar/Tantivy/LLM embeddings | Engine + separate search module in phase 2 |
 | Semantic only viable with heavy deps | Defer semantic to phase 2; ship lexical dedup first |
 | Structural requires custom Rust over neighbors | Expected for any engine; not a differentiator |
 
@@ -192,11 +194,11 @@ Numbers need not be benchmark-grade; they must be **reproducible** (command + co
 
 | Outcome | Action |
 |---------|--------|
-| IndraDB pass, Grafeo fail or “caveats too heavy” | Keep IndraDB; document S6 deferred to phase 2 search index |
-| Grafeo pass, IndraDB pass | Prefer Grafeo only if S6 + build/audit acceptable **and** team accepts larger dependency; else IndraDB + later search |
-| Both fail | Reopen evaluation — SQLite + FTS, or custom `redb`/LMDB layer per [graph-db-evaluation.md](./graph-db-evaluation.md) |
-| Both pass with caveats | Record caveats in evaluation; default to simpler engine unless S6 is committed for first release |
-| **S6+ stretch** favors Grafeo | Note in evaluation; product may still ship lexical-only in v1 if stretch semantic deps too heavy |
+| One shortlist engine pass, others fail or “caveats too heavy” | Lock winner; record S6/S6+ caveats in evaluation |
+| Multiple pass | Compare S6, build/audit, latency, ops per [graph-db-evaluation.md](./graph-db-evaluation.md); prefer engine-native search if S6 is committed for v1 |
+| All fail | Reopen evaluation — SQLite + FTS, or custom `redb`/LMDB layer per [graph-db-evaluation.md](./graph-db-evaluation.md) |
+| Pass with caveats | Record caveats in evaluation; default to simpler engine unless S6 is committed for first release |
+| **S6+ stretch** favors one engine | Note in evaluation; product may still ship lexical-only in v1 if stretch semantic deps too heavy |
 
 ---
 

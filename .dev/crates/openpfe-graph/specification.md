@@ -4,8 +4,8 @@
 
 | Path | Contents |
 |------|----------|
-| `./.openpfe/graph/store/` | IndraDB **RocksDB** datastore files |
-| `./.openpfe/graph/` | Parent dir; may add non-DB metadata later (keep `store/` for engine) |
+| `./.openpfe/graph/` | Engine datastore (layout depends on winning spike — Grafeo / nanograph / SparrowDB) |
+| `./.openpfe/graph/store/` | _Reserved name if engine uses a `store/` subdirectory; was IndraDB/RocksDB (rejected)_ |
 
 Open with `GraphStore::open` at **`./.openpfe/graph/store/`** (relative to **process cwd** = project root). No shared path-helper API.
 
@@ -61,9 +61,7 @@ Used by `openpfe-mcp` tools and `GET /api/v1/graph/clusters/:id/subgraph` — [o
 
 ## Engine dependency (normative)
 
-- Crate: `indradb` / `indradb-lib` **5.x**
-- Feature: **`rocksdb-datastore`**
-- License: verify `LICENSE` at spike (Apache-2.0 expected)
+**TBD** — locked after [graph-db-evaluation.md](./graph-db-evaluation.md) spikes complete. IndraDB is **not** a candidate.
 
 ## Related
 
