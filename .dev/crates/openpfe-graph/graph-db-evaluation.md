@@ -41,7 +41,7 @@ There is **no** legacy markdown problem-tree format; the graph is created and st
 | Candidate | Verdict |
 |-----------|---------|
 | **[indradb](https://github.com/indradb/indradb)** + RocksDB | **Provisional v1** — property graph, embedded, Rust API — [spike-indradb.md](./spike-indradb.md) |
-| [Grafeo](https://github.com/GrafeoDB/grafeo) | **Spike** — LPG + BM25/text search; compare build/audit — [spike-grafeo.md](./spike-grafeo.md) |
+| [Grafeo](https://github.com/GrafeoDB/grafeo) | **Spike (macOS pass w/ caveats)** — [grafeo-outcome.md](./grafeo-outcome.md); IndraDB compare pending — [spike-grafeo.md](./spike-grafeo.md) |
 | [CozoDB](https://github.com/cozodb/cozo) | Rejected v1 — Datalog-first; heavier fit for PFE |
 | [Oxigraph](https://github.com/oxigraph/oxigraph) | Rejected v1 — RDF; contracts modeled as properties instead |
 | [surrealdb](https://surrealdb.com/) | Rejected v1 — embedded story / ops complexity |

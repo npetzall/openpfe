@@ -13,7 +13,7 @@ Each engine spike is a **time-boxed experiment** (throwaway crate or short-lived
 | Engine spike | Document |
 |--------------|----------|
 | IndraDB 5.x + RocksDB | [spike-indradb.md](./spike-indradb.md) |
-| Grafeo (embedded LPG) | [spike-grafeo.md](./spike-grafeo.md) |
+| Grafeo (embedded LPG) | [spike-grafeo.md](./spike-grafeo.md) — [outcome](./grafeo-outcome.md) |
 
 Run **both** spikes on **macOS and Linux** before locking `specification.md` engine dependency lines.
 

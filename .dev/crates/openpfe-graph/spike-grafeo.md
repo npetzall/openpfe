@@ -2,6 +2,8 @@
 
 **Parent program:** [graph-db-spike.md](./graph-db-spike.md)
 
+**Outcome summary:** [grafeo-outcome.md](./grafeo-outcome.md) — scenarios, use cases, findings, improvements.
+
 **Engine:** [Grafeo](https://github.com/GrafeoDB/grafeo) — pure-Rust embeddable graph DB ([grafeo.dev](https://grafeo.dev)).
 
 **Role:** Alternative to IndraDB if it meets the same v1 bar **and** justifies extra dependency weight (notably **S6 text search**).
@@ -12,11 +14,11 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | Not started |
-| **Owner** | _unassigned_ |
-| **Branch / crate** | _e.g. `spike/grafeo` or `crates/openpfe-graph-spike`_ |
-| **Commit** | _SHA when complete_ |
-| **Platforms tested** | macOS: ☐ — Linux: ☐ |
+| **Status** | macOS complete — Linux pending |
+| **Owner** | spike branch |
+| **Branch / crate** | `crates/openpfe-graph-spike` ([plan 006](../../plans/006-spike-openpfe-graph-grafeo.md)) |
+| **Commit** | _record at merge_ |
+| **Platforms tested** | macOS: ☑ (Darwin 25.3 arm64) — Linux: ☐ |
 
 ---
 
@@ -114,8 +116,8 @@ Document actual files created (`.grafeo`, WAL, etc.) for backup section.
 
 Optional — [graph-db-spike.md](./graph-db-spike.md#stretch-goals--search--compare-s6). If run:
 
-- [ ] Lexical + **semantic** (paraphrase fixture) + **structural** (cluster/deps) per parent checklist
-- [ ] Merged ranked results with `match_kinds` (or equivalent) documented
+- [x] Lexical + **semantic** (paraphrase fixture) + **structural** (cluster/deps) per parent checklist
+- [x] Merged ranked results with `match_kinds` (or equivalent) documented
 - [ ] Compare S6+ latency/quality vs [spike-indradb.md](./spike-indradb.md) stretch notes
 
 ### 8. Optional: architecture projection
@@ -156,66 +158,88 @@ Optional — [graph-db-spike.md](./graph-db-spike.md#stretch-goals--search--comp
 
 ## Results
 
-_Fill when spike completes._
+**2026-05-24** — spike implementation in `openpfe-graph-spike`; `cargo test -p openpfe-graph-spike` green on macOS.
 
 ### Summary
 
 | Item | Result |
 |------|--------|
-| **Recommendation** | ☐ Pass ☐ Pass with caveats ☐ Fail |
-| **vs IndraDB** | ☐ Prefer Grafeo ☐ Prefer IndraDB ☐ Inconclusive |
-| **Caveats** | _e.g. MSRV, churn, binary size_ |
-| **Pinned version** | `grafeo = _._._` |
-| **Features enabled** | _list_ |
+| **Recommendation** | ☑ Pass with caveats (Linux + formal timings pending) |
+| **vs IndraDB** | ☐ Prefer Grafeo ☐ Prefer IndraDB ☑ Inconclusive (await IndraDB spike) |
+| **Caveats** | MSRV 1.91.1; transitive `bincode` unmaintained; young crate; BM25 ranking noisy on tiny corpus; Linux not re-run yet |
+| **Pinned version** | `grafeo = 0.5.42` |
+| **Features enabled** | `lpg`, `text-index` (not `embedded` / `ai` / `rdf` / `embed`) |
 
 ### Measurements
 
 | Metric | macOS | Linux |
 |--------|-------|-------|
-| `open` cold (ms) | | |
-| `subgraph` default (ms, nodes/edges) | | |
-| `validate_acyclic_deps` (ms) | | |
-| `list_nodes` limit 200 (ms) | | |
-| S6 search query (ms) | | |
-| Debug `cargo build` (s) | | |
-| Release size delta | | |
-| `cargo audit` | | |
+| `open` cold (ms) | _not timed_ | |
+| `subgraph` default (ms, nodes/edges) | _not timed_ (S4 test: ≤200 nodes on ~805-node fixture) | |
+| `validate_acyclic_deps` (ms) | _not timed_ | |
+| `list_nodes` limit 200 (ms) | _not timed_ | |
+| S6 search query (ms) | _not timed_ | |
+| Debug `cargo build` (s) | ~18s cold (incl. grafeo compile) | |
+| Release size delta | _not measured_ | |
+| `cargo audit` | exit 0; RUSTSEC-2025-0141 `bincode` allowed | |
 
 ### S6 results
 
 | Query | Expected hit | Actual |
 |-------|----------------|--------|
-| _example duplicate title_ | | |
-| _example unrelated_ | no hit | |
+| `Auth gateway` | P1 or P_DUP in top 3 | ☑ top 3 contains duplicate titles |
+| unrelated control | lower score than duplicates | ☑ may appear in top 5 on small corpus; not in top 2; score &lt; best duplicate |
+
+**False positives:** On 7-node problem set, unrelated `"Completely unrelated billing export"` can appear in top 5 with weak BM25 score — acceptable for spike; product should set score floors / larger corpus.
 
 ### S6+ stretch results (optional)
 
 | Kind | Pass? | Notes |
 |------|-------|-------|
-| Lexical (P-lex-2 / P-lex-3) | | |
-| Semantic (P-sem-1) | | |
-| Structural (P-struct-1) | | |
-| Merged ranking | | |
+| Lexical (P-lex-2 / P-lex-3) | ☑ | `find_similar` → P-lex-2 in top 3; P-lex-3 absent from top 5 |
+| Semantic (P-sem-1) | ☑ (proxy) | Description BM25 leg tags `semantic` when title BM25 weak; **not** vector/HNSW |
+| Structural (P-struct-1) | ☑ | Jaccard on `depends_on` neighbors within `cluster_id`; shared hub with P-lex-1 |
+| Merged ranking | ☑ | `SimilarHit { match_kinds, snippet, score }` — see `PfeGraphStore::find_similar` |
+| Latency (~200 problems) | ☑ recorded | ~19s `find_similar` debug (2026-05-24); ~1k: `cargo test … s6plus_latency_bulk_1k -- --ignored` |
+| False positives | note | Unrelated cluster peers can pick up weak structural score when draft is lexical-noise |
+| Implementation path | ☑ | **Engine-native** lexical (`text-index`); semantic proxy via description BM25; structural in adapter Rust. Vector/`ai` feature not enabled. |
+
+**Semantic path (stretch):** Grafeo `vector-index` / `embed` not used — paraphrase coverage via BM25 on `description` only. Full semantic needs HNSW or `openpfe-llm` embeddings + sidecar (phase 2 option).
 
 ### Transitive deps (notable)
 
 ```
-(paste cargo tree -i grafeo excerpt)
+grafeo v0.5.42
+└── openpfe-graph-spike
+    (+ grafeo-engine, grafeo-core, grafeo-storage, grafeo-adapters, bincode, regex, …)
 ```
 
 ### Features used in v1 (proposal)
 
 | Feature | Use? |
 |---------|------|
-| GQL/Cypher internal only | |
-| BM25 / text index | |
-| Vector / HNSW | |
+| GQL/Cypher internal only | Optional — spike uses Rust CRUD API |
+| BM25 / text index | **Yes** (`create_text_index`, `text_search`) |
+| Vector / HNSW | No |
 | RDF | No |
 | grafeo-mcp | No |
 
+### Schema mapping (spike)
+
+- Grafeo **label** = PFE `type` (`problem`, `cluster`, …).
+- Canonical **UUID** in property `id` (not Grafeo internal `NodeId`).
+- Edge types: `depends_on`, `member_of`, `interfaces` as relationship names.
+
+### On-disk layout (spike path)
+
+Persistent open uses a **`.grafeo` file** (e.g. `./.openpfe/graph/store/store.grafeo`) plus WAL/sibling files in the store directory (Grafeo `lpg` + `wal` + `grafeo-file`).
+
 ### Backup procedure
 
-_Operator steps for Grafeo files under `./.openpfe/graph/`._
+1. **Graceful:** `openpfe stop` (server not in spike scope).
+2. **`backup_full`:** Grafeo API to a backup directory (see `openpfe-graph-spike` `backup_full` test), or
+3. **Operator copy:** With server stopped, copy entire `./.openpfe/graph/` directory (including `store.grafeo` and WAL files).
+4. Restore: copy back to project path and `GrafeoDB::open` (or `restore_to_epoch` from backup manifest for PITR).
 
 ---
 
