@@ -15,7 +15,7 @@ Normative index and per-view behaviour: [openpfe-webui/assets/README.md](../crat
 | **Architecture** | Problem domains, dependencies, contracts; create specification per domain |
 | **Specification** | Unhandled specs; approve → creates tasks |
 | **Task** | Unhandled tasks; complete |
-| **Configuration** | `llm.json` catalog, download, active model, `llm` settings |
+| **Configuration** | `catalog.json`, discover/add, download, active model, local `llm.json` settings; init via CLI |
 | **Debug** | Local LLM and MCP protocol diagnostics |
 
 Reachable without full page reload (JS view switching); deep links optional until specified.

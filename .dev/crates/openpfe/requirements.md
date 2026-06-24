@@ -29,11 +29,19 @@
 - **FR-4.2** If server not running: exit **0** with informative stderr message (idempotent stop).
 - **FR-4.3** Expect runtime files under `.openpfe/server/` removed on clean shutdown (server responsibility).
 
+### FR-5 CLI — LLM init (`openpfe llm init`)
+
+- **FR-5.1** Read committed **`catalog.json`**; probe hardware via **`openpfe-llm`**; write gitignored **`llm.json`** with best **recommended ∩ capable** model.
+- **FR-5.2** When weights not installed: **`ensure_server`**, IPC **`echo`** for **`http_base_url`**, HTTP **`POST /catalog/:id/download`**; stdout **`job_id`** and absolute **`status_url`**.
+- **FR-5.3** **`openpfe llm download status <job_id>`** — poll download via echo + HTTP.
+- **FR-5.4** Support **`--dry-run`**, **`--force`**, **`--no-download`** per [specification.md](./specification.md#llm-init).
+- **FR-5.5** Do **not** overwrite existing **`llm.json`** without **`--force`**.
+
 ## Decisions (resolved)
 
 | Topic | Decision |
 |-------|----------|
-| **v1 command set** | **In scope:** default, `mcp`, `stop`, internal `--server`. **Out of v1:** `init`, `status`, `logs` (future; `init` aligns with [openpfe_tooling.md](../../../openpfe_tooling.md) later). |
+| **v1 command set** | **In scope:** default, `mcp`, `stop`, **`llm init`**, **`llm download status`**, internal `--server`. **Out of v1:** full-project `init`, `status`, `logs`. |
 | **Browser on headless** | Not required. Use `--no-browser` / `OPENPFE_NO_BROWSER=1` in CI; failed open after server is up → warn, exit 0. |
 | **IPC versioning** | **No negotiation in v1** — fixed `"v": 1` per frame; explicit reject on mismatch. |
 

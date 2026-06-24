@@ -50,6 +50,10 @@
 
 Clients must obtain HTTP base URL from **echo**, not from disk or env (see [cross-cutting.md#data-placement](../cross-cutting.md#data-placement)).
 
+### LLM init (CLI)
+
+**`openpfe llm init`** uses IPC **`echo`** only to obtain **`http_base_url`**, then HTTP for download — **no LLM envelopes over IPC**. See [openpfe/specification.md](../crates/openpfe/specification.md#llm-init).
+
 ## HTTP (human API)
 
 - Base path: **`/api/v1/`** — [openpfe-ui/specification.md](../crates/openpfe-ui/specification.md).

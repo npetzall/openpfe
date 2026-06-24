@@ -16,7 +16,8 @@ Workspace role: [workspace-crates.md](../../workspace-crates.md).
 | **Browser (v1)** | [`webbrowser`](https://docs.rs/webbrowser) opens `http_base_url` from echo as-is. **No** auth query param — localhost-only, no auth layer in v1 ([protocols.md](../../guidelines/protocols.md)). |
 | **`--timeout` default** | **5s**; override via `OPENPFE_TIMEOUT` (seconds). Lock-held echo retry uses backoff steps **50ms → 200ms → 500ms** (repeat last step) until deadline. |
 | **`-v`** | Off by default; when set, log each flock/echo retry and spawn/connect milestones to stderr. |
-| **v1 commands** | Normative: default (no subcommand), `mcp`, `stop`, internal `--server`. **`init` / `status` / `logs` deferred** — see [specification.md](./specification.md). |
+| **v1 commands** | Normative: default (no subcommand), `mcp`, `stop`, **`llm init`**, **`llm download status`**, internal `--server`. Full-project **`init` / `status` / `logs` deferred** — see [specification.md](./specification.md). |
+| **LLM init** | CLI only — read **`catalog.json`**, write **`llm.json`**, download via IPC echo + HTTP; no LLM over IPC ([protocols.md](../../guidelines/protocols.md)). |
 | **`openpfe stop` when down** | Exit **0**, stderr message `server not running` (idempotent). |
 | **IPC version (v1)** | No negotiation. Client sends envelope `"v": 1`; server rejects other values ([openpfe-ipc/specification.md](../openpfe-ipc/specification.md)). |
 | **Headless / CI** | `--no-browser` or `OPENPFE_NO_BROWSER=1` skips launch. If browser open fails after server is up, **warn on stderr and exit 0** (browser is optional). |
@@ -107,6 +108,20 @@ Echo on `socket` ⇒ client. No echo → try flock; if flock fails → **lock-he
 ## Logging
 
 - CLI: quiet by default; `-v` for connection / lock / echo retries.
+
+## LLM init (client)
+
+```
+openpfe llm init
+  ├─ openpfe-llm: catalog + hardware → llm.json (local)
+  ├─ if download needed:
+  │    ├─ ensure_server (spawn if needed)
+  │    ├─ IPC echo → http_base_url
+  │    └─ HTTP POST /api/v1/catalog/{id}/download → job_id, status_url
+  └─ stdout JSON; exit 0
+```
+
+Poll: **`openpfe llm download status <job_id>`** — same echo + **`GET status_url`**.
 
 ## Related
 

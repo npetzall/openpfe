@@ -10,7 +10,7 @@ Workspace role: [workspace-crates.md](../../workspace-crates.md).
 |-------|----------|
 | **HTTP framework** | **axum** — export `Router` for `openpfe-server` to mount on `127.0.0.1:0`. **tower-http** on composed router in server. |
 | **Wire format** | **JSON** only for API bodies and on-disk config (no TOML in product). |
-| **Human data API** | REST `/api/v1/…` for graph, `llm.json`, models, inference. **`server.json`** is **out of scope** — IPC admin ([openpfe-ipc/specification.md](../openpfe-ipc/specification.md)). |
+| **Human data API** | REST `/api/v1/…` for graph, **catalog CRUD**, `llm.json` runtime, models aggregate, inference. **`server.json`** is **out of scope** — IPC admin ([openpfe-ipc/specification.md](../openpfe-ipc/specification.md)). **No HTTP LLM init.** |
 | **Orchestration** | Handlers call **`AppState`**: **`GraphStore`** (`openpfe-graph`), **`LlmService`** (`openpfe-llm`). After LLM mutations, invoke **`reload_engine`**. |
 | **Graph search (v1)** | **`search_problems`** (S6) and **`find_similar`** (S6+) exposed on human API — [specification.md#search-and-similarity](./specification.md#search-and-similarity). Sync `GraphStore` search runs on **`spawn_blocking`** from async handlers. **`embedding`** in `find_similar` is optional; without `/llm/embed` (v1), clients omit it and rely on lexical + structural legs. |
 | **Edge identity (v1)** | **No edge UUID** — identity is **`(src_id, dst_id, type)`**, matching `Edge` and `GraphStore`. **`DELETE /graph/edges`** takes the triple as query params ([specification.md#edges](./specification.md#edges)). Stable edge ids deferred (would require schema + store changes). Aligns with MCP `openpfe_contract_get` `from` / `to` / `type` lookup. |
@@ -33,7 +33,7 @@ See [specification.md#appstate-v1](./specification.md#appstate-v1). Graph + LLM 
 
 - Static assets → **`openpfe-webui`**
 - **`server.json`** — IPC admin in **`openpfe-server`** / **`openpfe-ipc`**; not human HTTP
-- Owning `llm.json` schema → **`openpfe-llm`**
+- Owning `catalog.json` / `llm.json` schema → **`openpfe-llm`**
 - Owning MCP tool/resource semantics → **`openpfe-mcp`**
 - Project path literals → owning crates’ `specification.md` (server, graph, llm); **cwd** convention in [cross-cutting.md](../../cross-cutting.md)
 - IPC framing, socket bind, stdio MCP bridge

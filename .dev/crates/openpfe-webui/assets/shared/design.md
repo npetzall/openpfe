@@ -80,7 +80,7 @@ Capabilities **`openpfe-ui`** must eventually expose — not endpoint lists.
 | **Specifications** | Draft/review/approve; link to domain; task creation on approve → Specification |
 | **Tasks** | List by status; links to spec/domain → Task |
 | **LLM (inference)** | Prompt/complete for embedded panel and Debug |
-| **LLM (setup)** | `llm.json`, catalog, download, active model → [Configuration](../configuration/) |
+| **LLM (setup)** | `catalog.json`, discover, download, active model, `llm.json` → [Configuration](../configuration/) |
 | **MCP** | Debug: `POST /debug/mcp` (raw JSON-RPC); Problem: handoff command for external IDE (IPC transport) |
 
 v1 server: REST + poll ([openpfe-ui/design.md](../../../openpfe-ui/design.md)).

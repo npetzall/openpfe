@@ -17,13 +17,14 @@ Index only; normative path tables live in owning crate specs:
 | Data | Location | Normative doc |
 |------|----------|----------------|
 | Server process config | `./.openpfe/server.json` (IPC admin read/write) | [openpfe-server/specification.md](./crates/openpfe-server/specification.md), [openpfe-ipc/specification.md](./crates/openpfe-ipc/specification.md) |
-| LLM config + catalog | `./.openpfe/llm.json` | [openpfe-llm/specification.md](./crates/openpfe-llm/specification.md) |
+| LLM catalog | `./.openpfe/catalog.json` (commit) | [openpfe-llm/specification.md](./crates/openpfe-llm/specification.md) |
+| LLM runtime config | `./.openpfe/llm.json` (gitignore) | [openpfe-llm/specification.md](./crates/openpfe-llm/specification.md) |
 | Downloaded models | `USER_HOME/.openpfe/models/<id>/` (shared) | [openpfe-llm/specification.md](./crates/openpfe-llm/specification.md) |
 | Problem graph | `./.openpfe/graph/store/` (Grafeo) | [openpfe-graph/specification.md](./crates/openpfe-graph/specification.md), [openpfe-graph/decision.md](./crates/openpfe-graph/decision.md) |
 | Server runtime | `./.openpfe/server/` (`pid`, `socket`) | [openpfe-server/specification.md](./crates/openpfe-server/specification.md), [openpfe/specification.md](./crates/openpfe/specification.md) (client) |
 | HTTP base URL | **Not on disk** — IPC echo only | [openpfe-ipc/specification.md](./crates/openpfe-ipc/specification.md) |
 
-**Config:** JSON per crate under `./.openpfe/` (`server.json`, `llm.json`). **Weights** shared under `USER_HOME/.openpfe/models/`. **One server per project.**
+**Config:** JSON per crate under `./.openpfe/` (`server.json`, `catalog.json`, `llm.json`). **Commit** `catalog.json`; **gitignore** `llm.json` in user projects. **Weights** shared under `USER_HOME/.openpfe/models/`. **One server per project.**
 
 ## Client transports
 
@@ -39,6 +40,7 @@ Startup scenarios: [architcture.md](./architcture.md#startup-scenarios).
 | `openpfe mcp` | `openpfe` (stdio bridge) → server → `McpHandler` → graph | [openpfe/design.md](./crates/openpfe/design.md#mcp-over-ipc-openpfe-mcp) |
 | Web UI Debug MCP | browser → `POST /debug/mcp` → same `McpHandler` | [openpfe-ui/specification.md](./crates/openpfe-ui/specification.md#mcp-debug-json-rpc) |
 | Singleton / races | `openpfe-server` (`pid` flock), `openpfe-ipc` (echo), `openpfe` (client wait) | [openpfe-server/design.md](./crates/openpfe-server/design.md), [openpfe/design.md](./crates/openpfe/design.md) |
+| LLM init | `openpfe` CLI → `catalog.json` + hardware → `llm.json`; IPC echo → HTTP download | [openpfe/specification.md](./crates/openpfe/specification.md#llm-init), [openpfe-llm/specification.md](./crates/openpfe-llm/specification.md) |
 
 ## Cross-cutting NFRs (index)
 
@@ -66,9 +68,10 @@ Product functional requirements are **owned by crate** `requirements.md` files. 
 | FR-1 (singleton) | [openpfe-server/requirements.md](./crates/openpfe-server/requirements.md) (server); [openpfe/requirements.md](./crates/openpfe/requirements.md) (client) |
 | FR-2, FR-3, FR-4 | [openpfe/requirements.md](./crates/openpfe/requirements.md) |
 | FR-3.3 (MCP semantics) | [openpfe-mcp/requirements.md](./crates/openpfe-mcp/requirements.md) |
-| FR-5 | [openpfe-ipc/requirements.md](./crates/openpfe-ipc/requirements.md) |
+| FR-5 (IPC) | [openpfe-ipc/requirements.md](./crates/openpfe-ipc/requirements.md) |
+| FR-5 (LLM init CLI) | [openpfe/requirements.md](./crates/openpfe/requirements.md#fr-5-cli--llm-init-openpfe-llm-init) |
 | FR-6.1 | [openpfe-webui/requirements.md](./crates/openpfe-webui/requirements.md) |
-| FR-6.2, FR-6.4–6.8 | [openpfe-ui/requirements.md](./crates/openpfe-ui/requirements.md) |
+| FR-6.2, FR-6.4–6.9 | [openpfe-ui/requirements.md](./crates/openpfe-ui/requirements.md) |
 | FR-6.5 | [openpfe-server/requirements.md](./crates/openpfe-server/requirements.md) |
 | FR-7 (project root / cwd) | [openpfe/requirements.md](./crates/openpfe/requirements.md); convention above |
 | FR-7 (server paths + `server.json`) | [openpfe-server/requirements.md](./crates/openpfe-server/requirements.md) |

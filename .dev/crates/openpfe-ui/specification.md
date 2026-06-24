@@ -14,7 +14,8 @@ Base path: **`/api/v1`**. **JSON** request/response.
 |------|-------------------|------|
 | 400 | `invalid_request` | Bad JSON or validation |
 | 404 | `not_found` | Unknown node/model/job |
-| 409 | `conflict` | Graph constraint |
+| 409 | `conflict` | Graph constraint; duplicate catalog id; download in progress |
+| 501 | `not_implemented` | Discover source not yet available |
 | 503 | `model_not_loaded` | LLM not loaded |
 | 503 | `inference_busy` | Single-flight inference |
 
@@ -33,7 +34,7 @@ Defined in **`openpfe-ui`**; constructed by **`openpfe-server`** at startup and 
 | Field | Type (conceptual) | Purpose |
 |-------|-------------------|---------|
 | `graph` | `Arc<Mutex<dyn GraphStore + Send>>` (or concrete `GrafeoGraphStore` behind same lock) | Sync graph API; lock for `&mut self` writes |
-| `llm` | `Arc<dyn LlmService>` | `llm.json`, models, inference |
+| `llm` | `Arc<dyn LlmService>` | `catalog.json`, `llm.json`, models, inference |
 | `mcp` | `Arc<McpHandler>` (`openpfe-mcp`) | MCP JSON-RPC — Debug view; same handler as IPC `type: mcp` |
 
 **Not in `AppState`:** `server.json` / server process config (IPC admin in `openpfe-server`).
@@ -159,23 +160,57 @@ Missing `title` → `400` `invalid_request`. Omit `embedding` in v1 when no embe
 
 ---
 
-## LLM (`llm.json`, models, inference)
+## LLM (catalog, runtime, inference)
 
-Delegated to **`openpfe-llm`** — [specification.md](../openpfe-llm/specification.md).
+Delegated to **`openpfe-llm`** — [specification.md](../openpfe-llm/specification.md). Normative DTOs and reload rules live there; this section defines HTTP routing.
+
+Web UI: [openpfe-webui/assets/configuration/specification.md](../openpfe-webui/assets/configuration/specification.md).
+
+### Catalog (CRUD)
 
 | Method | Path | Purpose |
 |--------|------|---------|
-| `GET` | `/llm/config` | Full `llm.json` document |
+| `GET` | `/catalog` | List `{ "entries": [ CatalogEntry … ] }` |
+| `GET` | `/catalog/:id` | One `CatalogEntry` |
+| `POST` | `/catalog` | Create **one** entry → **201** + `Location` |
+| `PUT` | `/catalog/:id` | Replace entry |
+| `PATCH` | `/catalog/:id` | Partial update |
+| `DELETE` | `/catalog/:id` | Remove entry → **204** |
+| `GET` | `/catalog/discover` | Browse candidates — query: `source`, `q`, `provider`, `curated`, `limit` |
+
+**`POST /catalog`:** single entry only — no bulk body. Clients add multiple models with sequential requests (loopback).
+
+**`GET /catalog/discover`:** read-only. Does not mutate `catalog.json`. See [openpfe-llm/specification.md](../openpfe-llm/specification.md#discoverquery--discoverresponse).
+
+### Install jobs
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `POST` | `/catalog/:id/download` | `{ "job_id", "status_url" }` — start HTTPS download |
+| `GET` | `/downloads/:job_id` | `DownloadStatus` |
+
+When status reaches `complete` and active model is installed but not loaded, handler calls **`reload_engine`**.
+
+**Deprecated (remove after migration):** `POST /models/:id/download`, `GET /models/downloads/:job_id`.
+
+### Runtime + inference
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/llm/config` | `LlmSettings` only (`llm.json`) |
 | `PUT` | `/llm/config` | Replace `llm.json`; **`reload_engine`** when load-affecting |
-| `GET` | `/models` | Catalog + `installed` |
-| `GET` | `/models/:id` | Detail if installed |
-| `POST` | `/models/:id/download` | `{ "job_id" }` |
-| `GET` | `/models/downloads/:job_id` | Poll progress |
 | `PUT` | `/llm/active` | `{ "model": "<id>" }` → update `llm.model`; reload if installed |
-| `GET` | `/llm/status` | Engine status |
+| `GET` | `/llm/status` | `LlmStatus` |
 | `POST` | `/llm/complete` | Completion |
 
-Web UI: [openpfe-webui/assets/configuration/specification.md](../openpfe-webui/assets/configuration/specification.md).
+### Read-only aggregate
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/models` | `ModelEntry` = catalog + `installed` + `manifest` |
+| `GET` | `/models/:id` | One `ModelEntry`; **404** if not in catalog |
+
+**No LLM init over HTTP** — bootstrap is CLI-only ([openpfe/specification.md](../openpfe/specification.md#llm-init)).
 
 ---
 

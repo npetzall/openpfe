@@ -37,7 +37,7 @@ Both MCP transports call the same **`McpHandler`** instance in the server proces
 | **Domain without I/O** | `openpfe-graph` (graph store only) |
 | **IPC without domain** | `openpfe-ipc` — frames + UDS only |
 | **Config format** | **JSON** per owning crate (`serde_json`); HTTP uses same shapes — **no TOML** |
-| **Local LLM in v1** | **`openpfe-llm`** — project `llm.json`, shared `USER_HOME/.openpfe/models/`, llama.cpp |
+| **Local LLM in v1** | **`openpfe-llm`** — `catalog.json` (commit) + `llm.json` (local), shared `USER_HOME/.openpfe/models/`, llama.cpp |
 | **Paths** | **Documented per crate** in `design.md` / `requirements.md` / `specification.md` — no shared path-helper crate or API |
 
 ---
@@ -71,11 +71,11 @@ flowchart BT
 | **`openpfe`** | `bin` | CLI; IPC for control + MCP bridge; optional HTTP client later for rich CLI | HTTP route definitions; MCP tools; graph |
 | **`openpfe-server`** | `lib` | `pid` flock; UDS + HTTP; **`server.json`**; mount API + static; shutdown | Domain handlers (delegates to `openpfe-ui`, `openpfe-mcp`) |
 | **`openpfe-ipc`** | `lib` | Framing, envelope, UDS, echo/shutdown | Domain; MCP semantics; HTTP |
-| **`openpfe-ui`** | `lib` | **HTTP API for humans** — graph + `llm.json` + MCP debug route; `AppState` (graph + LLM + `McpHandler`) from server | Static embed; IPC framing; MCP tool defs; `server.json`; owning config files |
+| **`openpfe-ui`** | `lib` | **HTTP API for humans** — graph + catalog/LLM REST + MCP debug route; `AppState` from server | Static embed; IPC framing; MCP tool defs; `server.json`; owning config files |
 | **`openpfe-webui`** | `lib` | **Embedded browser UI** — `assets/` → bytes + content-type | API handlers; domain logic |
 | **`openpfe-mcp`** | `lib` | **`McpHandler`** — MCP tools/resources → graph; transport-agnostic | HTTP route impl; static assets; IPC framing |
 | **`openpfe-graph`** | `lib` | Embedded graph store | HTTP; IPC; MCP |
-| **`openpfe-llm`** | `lib` | `llm.json`, registry, downloads, inference | HTTP route impl in `openpfe-ui` |
+| **`openpfe-llm`** | `lib` | `catalog.json`, `llm.json`, registry, discover, downloads, inference | HTTP route impl in `openpfe-ui` |
 
 **v1 count: 8 crates** (all included; **`openpfe-llm` is not deferred**).
 

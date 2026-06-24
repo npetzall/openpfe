@@ -87,7 +87,7 @@ See [testing-rust.md](./testing-rust.md) for mock vs integration test expectatio
 - **cwd** = project root: [cross-cutting.md](../cross-cutting.md#project-root-convention).
 - **Paths**: normative tables in each owning crate’s `specification.md` — no shared path-helper module.
 - **`server.json`**: **`openpfe-server`** — [openpfe-server/specification.md](../crates/openpfe-server/specification.md).
-- **`llm.json`** + shared weights: **`openpfe-llm`** — [openpfe-llm/specification.md](../crates/openpfe-llm/specification.md).
+- **`catalog.json`** + **`llm.json`** + shared weights: **`openpfe-llm`** — [openpfe-llm/specification.md](../crates/openpfe-llm/specification.md).
 - Graph: **`openpfe-graph`**. Config serialization: **`serde_json`** only (no TOML).
 
 ## Style and quality
