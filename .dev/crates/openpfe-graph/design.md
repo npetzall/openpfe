@@ -6,10 +6,11 @@ Embedded graph store under `./.openpfe/graph/`. **No** HTTP, IPC, or MCP.
 
 | Topic | Decision |
 |-------|----------|
-| **Engine (v1)** | **TBD** after engine spikes — [graph-db-evaluation.md](./graph-db-evaluation.md). IndraDB **rejected**; shortlist: Grafeo, nanograph, SparrowDB. |
-| **Persistence path** | `./.openpfe/graph/` (engine-specific subdirectory); created on server start. |
+| **Engine (v1)** | **[Grafeo](https://github.com/GrafeoDB/grafeo)** — [decision.md](./decision.md). Adapter: [grafeo/design.md](./grafeo/design.md). |
+| **Persistence path** | `./.openpfe/graph/store/` — engine persistent files; created on server start. |
 | **Graph model** | **Labeled property graph** — not RDF in v1. |
-| **Query (v1)** | `GraphStore` trait + IndraDB adapter; **no** exposed Cypher/Datalog. |
+| **Query (v1)** | `GraphStore` trait + **`GrafeoGraphStore`** ([`crates/openpfe-graph`](../../../crates/openpfe-graph)); **no** exposed Cypher/GQL on HTTP/MCP. |
+| **Search (v1)** | **S6** lexical (`search_problems`) + **S6+** multi-signal (`find_similar`) — normative in [specification.md](./specification.md#search-and-similarity-v1). |
 | **Concurrency** | **Single writer** (server); in-process readers only. |
 | **Backup** | Copy `./.openpfe/graph/` directory when server is stopped. |
 | **Ownership** | Server process owns writes; `openpfe-ui` / `openpfe-mcp` call sync store API via `Arc`. |
@@ -31,20 +32,42 @@ Abstraction over the chosen engine so HTTP/MCP do not depend on engine types dir
 | `neighbors(id, edge_types?, direction)` | Adjacency |
 | `subgraph(cluster_id, limits)` | Bounded traversal for UI + context shield |
 | `validate_acyclic_deps()` | Cycle detection on `depends_on` (tooling alignment) |
+| `search_problems(query, k)` | **S6** — lexical BM25 on `problem` `title` / `description` |
+| `find_similar(draft, k)` | **S6+** — merged ranked candidates with `match_kinds` (lexical, semantic, structural) |
+| `backup_full(path)` | Engine backup + operator directory copy |
+| `rebuild_text_indexes()` / `rebuild_vector_index()` | After bulk import |
 
-Heavy traversals may run on `spawn_blocking` from async HTTP handlers.
+Heavy traversals and search may run on `spawn_blocking` from async HTTP handlers.
+
+## Search workflow (v1 product intent)
+
+During drill-down or manual entry, callers discover whether a **problem is already in the graph** before creating a duplicate:
+
+```
+New problem draft (title + description [+ embedding])
+        │
+        ▼
+  find_similar / search_problems  ──► ranked existing `problem` nodes
+        │                              (score, match_kinds, snippet)
+        ▼
+  Agent or user: link to existing | refine draft | create new node
+```
+
+MCP/UI tool surfaces are owned by `openpfe-mcp` / `openpfe-ui`; this crate owns store behavior only.
 
 ## Scope
 
-- Engine adapter (winner of graph DB spikes)
+- `GrafeoGraphStore` — [grafeo/specification.md](./grafeo/specification.md), [grafeo/design.md](./grafeo/design.md), and `schema.rs`
 - Schema constants for node/edge types — [specification.md](./specification.md)
 - Open/create at `./.openpfe/graph/store/` when server starts
 
-## Spikes (engine proof)
+## Engine selection (complete)
 
-Before phase 2 merge, run [graph-db-spike.md](./graph-db-spike.md): [spike-grafeo.md](./spike-grafeo.md), [spike-nanograph.md](./spike-nanograph.md), [spike-sparrowdb.md](./spike-sparrowdb.md). Update engine lines here and in [specification.md](./specification.md) from spike outcomes.
+Adapter implemented in **`crates/openpfe-graph`** (`GrafeoGraphStore`). Engine locked — [decision.md](./decision.md). Spike evidence: [spike/](./spike/).
 
 ## Related
 
+- [decision.md](./decision.md) — locked engine
+- [grafeo/](./grafeo/) — Grafeo adapter details
 - [openpfe-mcp/design.md](../openpfe-mcp/design.md) — agent queries
 - [openpfe-ui/design.md](../openpfe-ui/design.md) — human graph HTTP

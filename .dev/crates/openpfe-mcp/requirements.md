@@ -2,7 +2,7 @@
 
 ## FR-3 MCP (semantics)
 
-- **FR-3.3** MCP semantics implemented in server (this crate); stdio path is transport only in `openpfe` binary.
+- **FR-3.3** MCP semantics implemented in this crate (`McpHandler`); stdio and HTTP are transports only (`openpfe` binary, `openpfe-ui` debug route).
 
 ## FR-9 Agents
 

@@ -2,7 +2,7 @@
 
 **Status:** In progress — macOS S1–S6+ green (2026-05-24); Linux skipped; formal ~1k latency optional (`--ignored` test).
 
-**Read when:** executing the Grafeo branch of [graph-db-spike.md](../crates/openpfe-graph/graph-db-spike.md) before phase 2 `openpfe-graph` implementation.
+**Read when:** executing the Grafeo branch of [spike/program.md](../crates/openpfe-graph/spike/program.md) before phase 2 `openpfe-graph` implementation.
 
 **Branch:** Work on a dedicated spike branch (e.g. `spike/grafeo`); do not merge spike crate or `grafeo` dependency into `openpfe-graph` until evaluation is updated and a separate implementation plan is approved.
 
@@ -10,13 +10,13 @@
 
 | Doc | Use |
 |-----|-----|
-| [graph-db-spike.md](../crates/openpfe-graph/graph-db-spike.md) | Shared scenarios S1–S6, fixture, acceptance, measurements |
-| [spike-grafeo.md](../crates/openpfe-graph/spike-grafeo.md) | Grafeo checklist, Results template, S6/S6+ detail |
-| [grafeo-outcome.md](../crates/openpfe-graph/grafeo-outcome.md) | Outcome summary — scenarios, use cases, findings, improvements |
-| [graph-db-evaluation.md](../crates/openpfe-graph/graph-db-evaluation.md) | Provisional IndraDB decision; update after spike |
+| [spike/program.md](../crates/openpfe-graph/spike/program.md) | Shared scenarios S1–S6, fixture, acceptance, measurements |
+| [spike/grafeo.md](../crates/openpfe-graph/spike/grafeo.md) | Grafeo checklist, Results template, S6/S6+ detail |
+| [spike/grafeo-outcome.md](../crates/openpfe-graph/spike/grafeo-outcome.md) | Outcome summary — scenarios, use cases, findings, improvements |
+| [spike/evaluation.md](../crates/openpfe-graph/spike/evaluation.md) | Provisional IndraDB decision; update after spike |
 | [openpfe-graph/design.md](../crates/openpfe-graph/design.md) | Target `GraphStore` operations (prototype only in spike) |
 | [openpfe-graph/specification.md](../crates/openpfe-graph/specification.md) | Node/edge types, properties, limits |
-| [spike-indradb.md](../crates/openpfe-graph/spike-indradb.md) | Apples-to-apples comparison baseline (may run in parallel on another branch/plan) |
+| [spike/indradb.md](../crates/openpfe-graph/spike/indradb.md) | Apples-to-apples comparison baseline (may run in parallel on another branch/plan) |
 | [guidelines/plans.md](../guidelines/plans.md) | Intake gate, progress tracking |
 | [guidelines/security-rust.md](../guidelines/security-rust.md) | `cargo audit` order after manifest edit |
 | [guidelines/coding-rust.md](../guidelines/coding-rust.md#adding-an-external-crate-order) | External crate workflow |
@@ -33,7 +33,7 @@ Spike depends on **one** new external crate: **`grafeo`** (pinned in spike crate
 
 - [x] `.dev/dependencies/grafeo/rational.md` (+ `lock-update.md`, `scan.md`, `verdict.md`)
 - [x] `dependency-lock-diff.sh grafeo@0.5.42 --package openpfe-graph-spike` → `lock-update.md`
-- [x] `crates/openpfe-graph-spike/Cargo.toml` lists `grafeo` with **minimal** features (`lpg` only; `text-index` / `ai` deferred to S6 — see [spike-grafeo.md](../crates/openpfe-graph/spike-grafeo.md#dependencies-pin-in-spike-cargotoml))
+- [x] `crates/openpfe-graph-spike/Cargo.toml` lists `grafeo` with **minimal** features (`lpg` only; `text-index` / `ai` deferred to S6 — see [spike/grafeo.md](../crates/openpfe-graph/spike/grafeo.md#dependencies-pin-in-spike-cargotoml))
 - [x] Workspace `Cargo.toml` adds member `crates/openpfe-graph-spike`; `Cargo.lock` updated
 - [x] **`cargo audit`** run immediately after manifest edit; output in `scan.md`
 - [x] **Human intake approval** (verdicts accepted; see [guidelines/plans.md](../guidelines/plans.md#pause-checkpoint-manual-inspection))
@@ -46,7 +46,7 @@ Record Grafeo **MSRV** (crates.io currently **1.91.1**) in intake rational; conf
 
 ## Goal
 
-Time-boxed proof that **[Grafeo](https://github.com/GrafeoDB/grafeo)** can back openpfe’s v1 problem graph: embedded persistence under a project-local path, `GraphStore`-shaped operations for scenarios **S1–S5**, **required S6** lexical search on `title`/`description`, plus supply-chain and backup evidence on **macOS and Linux**. Outcome updates [spike-grafeo.md](../crates/openpfe-graph/spike-grafeo.md) **Results** and [graph-db-evaluation.md](../crates/openpfe-graph/graph-db-evaluation.md); **does not** ship product code in `openpfe-graph`.
+Time-boxed proof that **[Grafeo](https://github.com/GrafeoDB/grafeo)** can back openpfe’s v1 problem graph: embedded persistence under a project-local path, `GraphStore`-shaped operations for scenarios **S1–S5**, **required S6** lexical search on `title`/`description`, plus supply-chain and backup evidence on **macOS and Linux**. Outcome updates [spike/grafeo.md](../crates/openpfe-graph/spike/grafeo.md) **Results** and [spike/evaluation.md](../crates/openpfe-graph/spike/evaluation.md); **does not** ship product code in `openpfe-graph`.
 
 ## Tasks
 
@@ -67,18 +67,18 @@ Set **Status** to **In progress — intake approved (YYYY-MM-DD)** when human cl
 #### 1. Spike crate scaffold
 
 - [x] `crates/openpfe-graph-spike/Cargo.toml` — `grafeo` only (no path dep on `openpfe-graph` product crate)
-- [x] Thin module: `GraphStore`-shaped prototype (`PfeGraphStore`) matching [graph-db-spike.md § B](../crates/openpfe-graph/graph-db-spike.md#b-graphstore-shaped-operations)
-- [x] Temp storage: `…/grafeo-store/store.grafeo` — documented in [spike-grafeo.md](../crates/openpfe-graph/spike-grafeo.md) Results
-- [x] Update [spike-grafeo.md](../crates/openpfe-graph/spike-grafeo.md) metadata (branch, commit SHA, owner)
+- [x] Thin module: `GraphStore`-shaped prototype (`PfeGraphStore`) matching [spike/program.md § B](../crates/openpfe-graph/spike/program.md#b-graphstore-shaped-operations)
+- [x] Temp storage: `…/grafeo-store/store.grafeo` — documented in [spike/grafeo.md](../crates/openpfe-graph/spike/grafeo.md) Results
+- [x] Update [spike/grafeo.md](../crates/openpfe-graph/spike/grafeo.md) metadata (branch, commit SHA, owner)
 
-#### 2. Shared PFE fixture ([graph-db-spike.md § C](../crates/openpfe-graph/graph-db-spike.md#c-pfe-seed-fixture-all-spikes))
+#### 2. Shared PFE fixture ([spike/program.md § C](../crates/openpfe-graph/spike/program.md#c-pfe-seed-fixture-all-spikes))
 
 - [x] One `cluster` + three `problem` nodes; `member_of` → cluster; `depends_on` chain `p1 → p2 → p3`
 - [x] One `interfaces` edge with `contract_body`, `version`, `consumer_id`, `provider_id`
 - [x] Optional ~500–1000 synthetic `problem` nodes for S4 smoke (800 in test)
 - [x] Document PFE schema mapping (labels vs `type` property)
 
-#### 3. Scenarios S1–S5 ([spike-grafeo.md](../crates/openpfe-graph/spike-grafeo.md) tasks 1–5)
+#### 3. Scenarios S1–S5 ([spike/grafeo.md](../crates/openpfe-graph/spike/grafeo.md) tasks 1–5)
 
 - [x] **S1** — create/open, CRUD nodes/edges, UUID ids, JSON properties, reopen round-trip
 - [x] **S2** — update properties; add/delete edges; delete node removes incident edges (Grafeo deletes incident edges)
@@ -91,10 +91,10 @@ Set **Status** to **In progress — intake approved (YYYY-MM-DD)** when human cl
 - [x] Enable Grafeo `text-index` feature (`lpg` + `text-index`)
 - [x] Index `title` and `description` via `create_text_index`
 - [x] Near-duplicate title → top-3 hit; unrelated scored below duplicates (see Results false-positive note)
-- [x] Document false positive/negative cases in [spike-grafeo.md](../crates/openpfe-graph/spike-grafeo.md) Results
+- [x] Document false positive/negative cases in [spike/grafeo.md](../crates/openpfe-graph/spike/grafeo.md) Results
 - [ ] Record S6 query latency in Results (formal ms)
 
-#### 5. Durability, backup, platforms ([graph-db-spike.md § A, D, F](../crates/openpfe-graph/graph-db-spike.md))
+#### 5. Durability, backup, platforms ([spike/program.md § A, D, F](../crates/openpfe-graph/spike/program.md))
 
 - [x] Write fixture → close → reopen → assert counts + known id/edge
 - [ ] Optional: kill mid-write — document behavior in spike-grafeo Results
@@ -103,7 +103,7 @@ Set **Status** to **In progress — intake approved (YYYY-MM-DD)** when human cl
 - [x] **macOS** clean debug build + `cargo test -p openpfe-graph-spike`
 - [x] **Linux** — skipped per team (2026-05-24)
 
-#### 6. Supply chain measurements ([graph-db-spike.md § E](../crates/openpfe-graph/graph-db-spike.md#e-supply-chain-and-build))
+#### 6. Supply chain measurements ([spike/program.md § E](../crates/openpfe-graph/spike/program.md#e-supply-chain-and-build))
 
 - [x] Apache-2.0 confirmed (crates.io)
 - [x] `cargo tree -i grafeo` excerpt in Results
@@ -113,18 +113,18 @@ Set **Status** to **In progress — intake approved (YYYY-MM-DD)** when human cl
 
 #### 7. Stretch S6+ (optional — time box after S1–S6)
 
-Only if baseline S1–S6 are green; see [graph-db-spike.md stretch](../crates/openpfe-graph/graph-db-spike.md#stretch-goals--search--compare-s6):
+Only if baseline S1–S6 are green; see [spike/program.md stretch](../crates/openpfe-graph/spike/program.md#stretch-goals--search--compare-s6):
 
 - [x] Extend fixture with P-lex / P-sem / P-struct pairs (`fixture::seed_s6_plus`)
 - [x] Lexical stretch checklist; semantic proxy + structural (`find_similar`, `tests/grafeo_spike_s6plus.rs`)
-- [x] Fill S6+ subsection in [spike-grafeo.md](../crates/openpfe-graph/spike-grafeo.md) Results
+- [x] Fill S6+ subsection in [spike/grafeo.md](../crates/openpfe-graph/spike/grafeo.md) Results
 
 #### 8. Documentation and decision
 
-- [x] Complete [spike-grafeo.md](../crates/openpfe-graph/spike-grafeo.md) **Results** (Recommendation, measurements table, S6 table, backup procedure)
-- [x] Update [graph-db-evaluation.md](../crates/openpfe-graph/graph-db-evaluation.md) decision table / Grafeo row per [graph-db-spike.md decision rules](../crates/openpfe-graph/graph-db-spike.md#decision-after-spikes)
+- [x] Complete [spike/grafeo.md](../crates/openpfe-graph/spike/grafeo.md) **Results** (Recommendation, measurements table, S6 table, backup procedure)
+- [x] Update [spike/evaluation.md](../crates/openpfe-graph/spike/evaluation.md) decision table / Grafeo row per [spike/program.md decision rules](../crates/openpfe-graph/spike/program.md#decision-after-spikes)
 - [x] If engine choice changes: note required follow-up for `design.md` / `specification.md` (do **not** edit product engine lines until both engine spikes complete unless human directs early lock)
-- [ ] Check corresponding boxes in [spike-grafeo.md](../crates/openpfe-graph/spike-grafeo.md) task list
+- [ ] Check corresponding boxes in [spike/grafeo.md](../crates/openpfe-graph/spike/grafeo.md) task list
 
 #### 9. Verification
 
@@ -135,18 +135,18 @@ Only if baseline S1–S6 are green; see [graph-db-spike.md stretch](../crates/op
 ## Acceptance criteria
 
 - [x] Intake artifacts for `grafeo` present; human approval recorded in plan and `verdict.md`
-- [x] [spike-grafeo.md](../crates/openpfe-graph/spike-grafeo.md) **Recommendation** filled: Pass / Pass with caveats / Fail
+- [x] [spike/grafeo.md](../crates/openpfe-graph/spike/grafeo.md) **Recommendation** filled: Pass / Pass with caveats / Fail
 - [x] S1–S5 pass on **macOS** per shared acceptance criteria (Linux skipped)
 - [x] **S6** pass (BM25 or documented full-text) with measurements and manual case notes
 - [x] Durability smoke and backup restore documented
 - [x] `cargo audit` outcome recorded (clean or advisories + remediation in verdict)
-- [x] [graph-db-evaluation.md](../crates/openpfe-graph/graph-db-evaluation.md) updated with Grafeo spike outcome
+- [x] [spike/evaluation.md](../crates/openpfe-graph/spike/evaluation.md) updated with Grafeo spike outcome
 - [x] Product `openpfe-graph` remains empty of engine code; spike isolated to `openpfe-graph-spike`
 
 ## Out of scope
 
 - Implementing `openpfe-graph` production adapter or server wiring (phase 2 implementation plan)
-- [spike-indradb.md](../crates/openpfe-graph/spike-indradb.md) execution (separate plan/branch; compare results when both exist)
+- [spike/indradb.md](../crates/openpfe-graph/spike/indradb.md) execution (separate plan/branch; compare results when both exist)
 - Exposing Grafeo GQL/Cypher/GraphQL on HTTP or MCP; adopting [grafeo-mcp](https://github.com/GrafeoDB/grafeo-mcp)
 - `openpfe-ui`, `openpfe-mcp`, MCP tools (`openpfe_graph_find_similar`, etc.)
 - Promoting `openpfe-graph-spike` to a permanent workspace member beyond spike branch (human decides merge vs discard)
@@ -154,5 +154,5 @@ Only if baseline S1–S6 are green; see [graph-db-spike.md stretch](../crates/op
 
 ## Next
 
-- Run **IndraDB** spike ([spike-indradb.md](../crates/openpfe-graph/spike-indradb.md)) if not already in progress — plan TBD (e.g. `007-spike-openpfe-graph-indradb.md`).
-- After **both** engine spikes: lock engine in [graph-db-evaluation.md](../crates/openpfe-graph/graph-db-evaluation.md), then phase 2 **`openpfe-graph` implementation** plan (TBD in [plans/README.md](./README.md)).
+- Run **IndraDB** spike ([spike/indradb.md](../crates/openpfe-graph/spike/indradb.md)) if not already in progress — plan TBD (e.g. `007-spike-openpfe-graph-indradb.md`).
+- After **both** engine spikes: lock engine in [spike/evaluation.md](../crates/openpfe-graph/spike/evaluation.md), then phase 2 **`openpfe-graph` implementation** plan (TBD in [plans/README.md](./README.md)).

@@ -22,7 +22,7 @@ Read loop: read 4 bytes → read `length` bytes → parse JSON → dispatch. Wri
 ```json
 {
   "v": 1,
-  "type": "echo | mcp | shutdown | error",
+  "type": "echo | mcp | shutdown | server_config_get | server_config_put | error",
   "id": 1,
   "payload": { }
 }
@@ -37,7 +37,7 @@ Read loop: read 4 bytes → read `length` bytes → parse JSON → dispatch. Wri
 
 **Versioning:** no handshake; every frame carries `"v": 1`. Bump `v` only with a documented migration.
 
-**Correlation:** one in-flight request per connection in v1. Admin handlers (`echo`, `shutdown`) are synchronous. MCP: one JSON-RPC request or batch per `type: mcp` envelope.
+**Correlation:** one in-flight request per connection in v1. Admin handlers (`echo`, `shutdown`, `server_config_get`, `server_config_put`) are synchronous. MCP: one JSON-RPC request or batch per `type: mcp` envelope.
 
 ## `type: error` (protocol)
 
@@ -91,13 +91,32 @@ If the request `id` is unknown (e.g. parse failure), use `"id": 0`.
 - **Response** `payload`: `{ "ok": true }` on the same connection, then server begins shutdown ([openpfe-server/specification.md](../openpfe-server/specification.md)).
 - Other connections may be dropped after shutdown starts; in-flight MCP work follows server drain policy ([openpfe-server/specification.md](../openpfe-server/specification.md) — default **5s**).
 
+## Admin envelopes — `server.json` (v1)
+
+**Admin IPC only** — handled in **`openpfe-server`**, not in **`openpfe-ui`** HTTP and **not** inside `type: mcp`. MCP agents **must not** read or write `server.json` ([openpfe-mcp/specification.md](../openpfe-mcp/specification.md)).
+
+Document shape: [openpfe-server/specification.md#serverjson-project-config](../openpfe-server/specification.md#serverjson-project-config).
+
+### `type: server_config_get`
+
+- **Request** `payload`: `{}`.
+- **Response** `payload`: full `server.json` document (same JSON as on disk; defaults applied when fields missing).
+
+### `type: server_config_put`
+
+- **Request** `payload`: full `server.json` document (replace).
+- **Response** `payload`: `{ "ok": true }`.
+- Persist and runtime apply: [openpfe-server/specification.md#serverjson-project-config](../openpfe-server/specification.md#serverjson-project-config) (PUT semantics).
+
+Invalid document → `type: error`, `payload.code`: `invalid_request`.
+
 ## Consumers (v1)
 
 | Client | Uses |
 |--------|------|
-| `openpfe` CLI | `echo`, `shutdown`, `mcp` (stdio bridge) |
-| Future TUI | `echo` (discover `http_base_url`), `shutdown` — **not** graph/config payloads |
-| Browser / Web UI | HTTP only (`openpfe-ui`) |
+| `openpfe` CLI | `echo`, `shutdown`, `server_config_get`, `server_config_put`, `mcp` (stdio bridge) |
+| Future TUI | `echo`, `shutdown`, `server_config_get`, `server_config_put` — **not** graph / `llm.json` (those use HTTP) |
+| Browser / Web UI | HTTP only (`openpfe-ui`) — **no** `server.json` routes |
 
 ## MCP (reference)
 

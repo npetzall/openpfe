@@ -1,18 +1,18 @@
 # Plan 006: IndraDB graph engine spike
 
-**Status:** Cancelled — IndraDB rejected (2026-05-24). See [graph-db-evaluation.md](../crates/openpfe-graph/graph-db-evaluation.md); run Grafeo / nanograph / SparrowDB spikes instead.
+**Status:** Cancelled — IndraDB rejected (2026-05-24). See [spike/evaluation.md](../crates/openpfe-graph/spike/evaluation.md); run Grafeo / nanograph / SparrowDB spikes instead.
 
-**Branch:** `spike_db_indradb` — time-boxed experiment; outcomes feed [graph-db-evaluation.md](../crates/openpfe-graph/graph-db-evaluation.md) before phase 2 `openpfe-graph` implementation.
+**Branch:** `spike_db_indradb` — time-boxed experiment; outcomes feed [spike/evaluation.md](../crates/openpfe-graph/spike/evaluation.md) before phase 2 `openpfe-graph` implementation.
 
-**Read when:** proving IndraDB 5.x + RocksDB can back `openpfe-graph` per [graph-db-spike.md](../crates/openpfe-graph/graph-db-spike.md) and [spike-indradb.md](../crates/openpfe-graph/spike-indradb.md).
+**Read when:** proving IndraDB 5.x + RocksDB can back `openpfe-graph` per [spike/program.md](../crates/openpfe-graph/spike/program.md) and [spike/indradb.md](../crates/openpfe-graph/spike/indradb.md).
 
 ## Normative sources
 
 | Doc | Use |
 |-----|-----|
-| [graph-db-spike.md](../crates/openpfe-graph/graph-db-spike.md) | Shared scenarios S1–S6+, acceptance criteria, measurements, decision rules |
-| [spike-indradb.md](../crates/openpfe-graph/spike-indradb.md) | IndraDB checklist, Results template, recommendation |
-| [graph-db-evaluation.md](../crates/openpfe-graph/graph-db-evaluation.md) | Provisional engine choice — update after spike |
+| [spike/program.md](../crates/openpfe-graph/spike/program.md) | Shared scenarios S1–S6+, acceptance criteria, measurements, decision rules |
+| [spike/indradb.md](../crates/openpfe-graph/spike/indradb.md) | IndraDB checklist, Results template, recommendation |
+| [spike/evaluation.md](../crates/openpfe-graph/spike/evaluation.md) | Provisional engine choice — update after spike |
 | [openpfe-graph/design.md](../crates/openpfe-graph/design.md) | `GraphStore` trait target |
 | [openpfe-graph/specification.md](../crates/openpfe-graph/specification.md) | Schema, paths, traversal limits |
 | [guidelines/plans.md](../guidelines/plans.md) | Progress tracking, dependency intake gate |
@@ -24,7 +24,7 @@
 
 - [x] [001-scaffolding.md](./001-scaffolding.md) complete — workspace compiles; `openpfe-graph` stub present.
 - [x] Phase 1 plans ([002](./002-openpfe-impl.md)–[005](./005-openpfe-wiring.md)) complete — spike does **not** depend on server/graph wiring.
-- [ ] Grafeo spike ([spike-grafeo.md](../crates/openpfe-graph/spike-grafeo.md)) may run in parallel on a separate branch; **not** a blocker for this plan.
+- [ ] Grafeo spike ([spike/grafeo.md](../crates/openpfe-graph/spike/grafeo.md)) may run in parallel on a separate branch; **not** a blocker for this plan.
 
 ### Dependency intake (phase A — complete before spike implementation)
 
@@ -39,9 +39,9 @@ Spike adds **`indradb`** (with **`rocksdb-datastore`**) to a **throwaway** works
 
 ## Goal
 
-On branch `spike_db_indradb`, build a **throwaway** spike crate that implements a `GraphStore`-shaped prototype on **IndraDB 5.x + RocksDB**, runs shared workload scenarios **S1–S5** (plus S6 documentation), captures measurements on **macOS and Linux**, and records a **Pass / Pass with caveats / Fail** recommendation in [spike-indradb.md](../crates/openpfe-graph/spike-indradb.md) and [graph-db-evaluation.md](../crates/openpfe-graph/graph-db-evaluation.md).
+On branch `spike_db_indradb`, build a **throwaway** spike crate that implements a `GraphStore`-shaped prototype on **IndraDB 5.x + RocksDB**, runs shared workload scenarios **S1–S5** (plus S6 documentation), captures measurements on **macOS and Linux**, and records a **Pass / Pass with caveats / Fail** recommendation in [spike/indradb.md](../crates/openpfe-graph/spike/indradb.md) and [spike/evaluation.md](../crates/openpfe-graph/spike/evaluation.md).
 
-**Time box:** 1–2 days including both platforms ([graph-db-spike.md](../crates/openpfe-graph/graph-db-spike.md)).
+**Time box:** 1–2 days including both platforms ([spike/program.md](../crates/openpfe-graph/spike/program.md)).
 
 ## Spike crate layout
 
@@ -76,7 +76,7 @@ Add workspace member in root `Cargo.toml` during implementation (after intake ap
 - [ ] `tests/` — integration tests per scenario; temp dir via `tempfile` (add intake batch if external) or std-only temp under `std::env::temp_dir()`
 - [ ] License check: read IndraDB `LICENSE` / crates.io metadata; record SPDX in spike Results
 
-### Phase D — Shared PFE fixture ([graph-db-spike.md § C](../crates/openpfe-graph/graph-db-spike.md#c-pfe-seed-fixture-all-spikes))
+### Phase D — Shared PFE fixture ([spike/program.md § C](../crates/openpfe-graph/spike/program.md#c-pfe-seed-fixture-all-spikes))
 
 - [ ] `fixture::seed_pfe_graph(store)` builds:
   - [ ] One `cluster` node (`title`, `status`)
@@ -88,7 +88,7 @@ Add workspace member in root `Cargo.toml` during implementation (after intake ap
 
 ### Phase E — `GraphStore`-shaped operations
 
-Implement minimal surface ([graph-db-spike.md § B](../crates/openpfe-graph/graph-db-spike.md#b-graphstore-shaped-operations)); signatures may differ from final crate API.
+Implement minimal surface ([spike/program.md § B](../crates/openpfe-graph/spike/program.md#b-graphstore-shaped-operations)); signatures may differ from final crate API.
 
 - [ ] `open` / `create` — empty dir vs reopen
 - [ ] `get_node` / `list_nodes` — filter by `type`, `cluster_id`
@@ -98,7 +98,7 @@ Implement minimal surface ([graph-db-spike.md § B](../crates/openpfe-graph/grap
 - [ ] `subgraph(cluster_id, limits)` — BFS over `member_of`, `depends_on`, `interfaces`; defaults `max_depth=3`, `max_nodes=200`
 - [ ] `validate_acyclic_deps()` — cycle detection on `depends_on`; return cycle path(s)
 
-Document PFE `type` → IndraDB vertex/edge mapping in spike `README.md` or `spike-indradb.md` Implementation notes.
+Document PFE `type` → IndraDB vertex/edge mapping in spike `README.md` or `spike/indradb.md` Implementation notes.
 
 ### Phase F — Scenario tests (S1–S5)
 
@@ -114,7 +114,7 @@ Document PFE `type` → IndraDB vertex/edge mapping in spike `README.md` or `spi
 
 - [ ] **S6 (required doc):** note no first-class FTS in IndraDB; spike workaround (`list_nodes` + in-memory title filter on fixture scale)
 - [ ] Record v1 recommendation: separate search index in phase 2 vs blocking release
-- [ ] **S6+ (stretch, optional):** lexical via sidecar/brute-force; structural via neighbors + `cluster_id`; semantic defer or note `openpfe-llm` path — see [graph-db-spike.md stretch section](../crates/openpfe-graph/graph-db-spike.md#stretch-goals--search--compare-s6)
+- [ ] **S6+ (stretch, optional):** lexical via sidecar/brute-force; structural via neighbors + `cluster_id`; semantic defer or note `openpfe-llm` path — see [spike/program.md stretch section](../crates/openpfe-graph/spike/program.md#stretch-goals--search--compare-s6)
 
 ### Phase H — Durability, backup, supply chain
 
@@ -132,19 +132,19 @@ Document PFE `type` → IndraDB vertex/edge mapping in spike `README.md` or `spi
 
 ### Phase J — Documentation and decision
 
-- [ ] Fill [spike-indradb.md](../crates/openpfe-graph/spike-indradb.md) **Results** (measurements table, transitive deps, S6 note, backup procedure, recommendation)
-- [ ] Update [spike-indradb.md](../crates/openpfe-graph/spike-indradb.md) metadata (Status, Owner, Commit SHA, platform checkboxes)
-- [ ] Update [graph-db-evaluation.md](../crates/openpfe-graph/graph-db-evaluation.md) decision table if recommendation is Pass / Fail / caveats change provisional choice
+- [ ] Fill [spike/indradb.md](../crates/openpfe-graph/spike/indradb.md) **Results** (measurements table, transitive deps, S6 note, backup procedure, recommendation)
+- [ ] Update [spike/indradb.md](../crates/openpfe-graph/spike/indradb.md) metadata (Status, Owner, Commit SHA, platform checkboxes)
+- [ ] Update [spike/evaluation.md](../crates/openpfe-graph/spike/evaluation.md) decision table if recommendation is Pass / Fail / caveats change provisional choice
 - [ ] If engine unchanged: leave [specification.md](../crates/openpfe-graph/specification.md) engine lines as-is; if Fail: note reopen evaluation in evaluation doc only (spec change deferred to follow-on plan)
 
 ## Acceptance criteria
 
 - [ ] Dependency intake complete and human-approved per [guidelines/plans.md](../guidelines/plans.md)
 - [ ] `cargo test -p openpfe-graph-spike` passes on **macOS** and **Linux**
-- [ ] Shared fixture matches [graph-db-spike.md § C](../crates/openpfe-graph/graph-db-spike.md#c-pfe-seed-fixture-all-spikes)
+- [ ] Shared fixture matches [spike/program.md § C](../crates/openpfe-graph/spike/program.md#c-pfe-seed-fixture-all-spikes)
 - [ ] S1–S5 scenario tasks checked; S6 documented with v1 workaround recommendation
-- [ ] [graph-db-spike.md](../crates/openpfe-graph/graph-db-spike.md) sections A (embedding), D (durability), E (supply chain), F (backup) satisfied and recorded
-- [ ] Measurements table filled in [spike-indradb.md](../crates/openpfe-graph/spike-indradb.md) (reproducible commands + commit SHA)
+- [ ] [spike/program.md](../crates/openpfe-graph/spike/program.md) sections A (embedding), D (durability), E (supply chain), F (backup) satisfied and recorded
+- [ ] Measurements table filled in [spike/indradb.md](../crates/openpfe-graph/spike/indradb.md) (reproducible commands + commit SHA)
 - [ ] Clear **Recommendation**: Pass | Pass with caveats | Fail in spike doc
 - [ ] `cargo fmt --all` and `cargo clippy -p openpfe-graph-spike -- -D warnings` clean (or documented exceptions)
 - [ ] No production changes to `crates/openpfe-graph/` beyond what evaluation docs require (spike stays in `openpfe-graph-spike`)
@@ -153,7 +153,7 @@ Document PFE `type` → IndraDB vertex/edge mapping in spike `README.md` or `spi
 
 - Full `openpfe-graph` product crate implementation (phase 2 plan TBD)
 - `openpfe-server` / `openpfe-ui` / `openpfe-mcp` integration
-- Grafeo spike ([spike-grafeo.md](../crates/openpfe-graph/spike-grafeo.md)) — parallel track
+- Grafeo spike ([spike/grafeo.md](../crates/openpfe-graph/spike/grafeo.md)) — parallel track
 - Exposing Cypher/Datalog on HTTP/MCP
 - Multi-process writers; export/import; LLM drill-down write tools
 - Promoting `openpfe-graph-spike` to workspace product without a new plan
@@ -161,5 +161,5 @@ Document PFE `type` → IndraDB vertex/edge mapping in spike `README.md` or `spi
 ## Next
 
 - If **Pass** or **Pass with caveats:** draft phase 2 plan `007-openpfe-graph-impl` (or equivalent) — real `GraphStore` in `crates/openpfe-graph`, server lifecycle, dependency intake for production `indradb` edge
-- If **Fail:** update [graph-db-evaluation.md](../crates/openpfe-graph/graph-db-evaluation.md); prioritize Grafeo spike results or reopen candidates
-- Run Grafeo spike on its branch before locking [specification.md](../crates/openpfe-graph/specification.md) engine lines ([graph-db-spike.md](../crates/openpfe-graph/graph-db-spike.md))
+- If **Fail:** update [spike/evaluation.md](../crates/openpfe-graph/spike/evaluation.md); prioritize Grafeo spike results or reopen candidates
+- Run Grafeo spike on its branch before locking [specification.md](../crates/openpfe-graph/specification.md) engine lines ([spike/program.md](../crates/openpfe-graph/spike/program.md))

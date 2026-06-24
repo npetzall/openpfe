@@ -14,7 +14,8 @@
 - **FR-7.1** Load **`./.openpfe/server.json`** when present (`server`, `http` objects).
 - **FR-7.2** Missing file is not an error; use defaults.
 - **FR-7.3** Persist with **`serde_json`** only (no TOML).
-- **FR-7.4** HTTP read/write via **`openpfe-ui`** routes — [specification.md](./specification.md#serverjson-project-config).
+- **FR-7.4** IPC admin read/write — **`server_config_get`** / **`server_config_put`** ([openpfe-ipc/specification.md](../openpfe-ipc/specification.md)); same document shape as on disk. **Not** exposed on human HTTP or MCP.
+- **FR-7.5** On **`server_config_put`**, apply runtime effects per [specification.md](./specification.md#serverjson-project-config) (`log_level`, `shutdown_timeout_secs` immediate; `http.host` persist-only until restart).
 
 ### FR-6 HTTP (listener)
 
@@ -36,4 +37,4 @@
 
 - [openpfe/requirements.md](../openpfe/requirements.md) — client FR-1.7–1.8
 - [openpfe-webui/requirements.md](../openpfe-webui/requirements.md) — FR-6.1
-- [openpfe-ui/requirements.md](../openpfe-ui/requirements.md) — FR-6.2–6.4
+- [openpfe-ui/requirements.md](../openpfe-ui/requirements.md) — FR-6.2, FR-6.4–6.6 (human HTTP; no `server.json`)

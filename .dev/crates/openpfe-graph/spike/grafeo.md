@@ -1,6 +1,6 @@
 # Spike: Grafeo (embedded LPG)
 
-**Parent program:** [graph-db-spike.md](./graph-db-spike.md)
+**Parent program:** [program.md](./program.md)
 
 **Outcome summary:** [grafeo-outcome.md](./grafeo-outcome.md) — scenarios, use cases, findings, improvements.
 
@@ -25,9 +25,9 @@
 ## Goals
 
 1. Prove persistent embedded open at a project-local path under `./.openpfe/graph/`.
-2. Implement [graph-db-spike.md](./graph-db-spike.md) scenarios **S1–S5** behind a `GraphStore`-shaped prototype (same fixture as IndraDB spike).
+2. Implement [program.md](./program.md) scenarios **S1–S5** behind a `GraphStore`-shaped prototype (same fixture as IndraDB spike).
 3. Prove **S6** — BM25 (or documented full-text) search on `title`/`description` for “similar / existing problem” on fixture.
-4. Compare build time, binary size, and `cargo audit` against [spike-indradb.md](./spike-indradb.md) results.
+4. Compare build time, binary size, and `cargo audit` against [indradb.md](./indradb.md) results.
 5. Decide whether Grafeo’s breadth (query languages, RDF, vectors) is **used in v1** or **disabled** via minimal feature set.
 
 ---
@@ -78,7 +78,7 @@ Document actual files created (`.grafeo`, WAL, etc.) for backup section.
 ### 1. Lifecycle (S1)
 
 - [ ] Create/open persistent DB at spike path
-- [ ] Insert `problem` and `cluster` nodes with properties matching [specification.md](./specification.md)
+- [ ] Insert `problem` and `cluster` nodes with properties matching [specification.md](../specification.md)
 - [ ] Insert `depends_on`, `member_of`, `interfaces` edges (typed relationships + JSON-like properties)
 - [ ] Reopen — stable ids and property round-trip
 - [ ] List/filter by label or `type` property equivalent
@@ -114,11 +114,11 @@ Document actual files created (`.grafeo`, WAL, etc.) for backup section.
 
 ### 7. Stretch — search & compare (S6+)
 
-Optional — [graph-db-spike.md](./graph-db-spike.md#stretch-goals--search--compare-s6). If run:
+Optional — [program.md#stretch-goals--search--compare-s6](./program.md#stretch-goals--search--compare-s6). If run:
 
 - [x] Lexical + **semantic** (paraphrase fixture) + **structural** (cluster/deps) per parent checklist
 - [x] Merged ranked results with `match_kinds` (or equivalent) documented
-- [ ] Compare S6+ latency/quality vs [spike-indradb.md](./spike-indradb.md) stretch notes
+- [ ] Compare S6+ latency/quality vs [indradb.md](./indradb.md) stretch notes
 
 ### 8. Optional: architecture projection
 
@@ -146,7 +146,7 @@ Optional — [graph-db-spike.md](./graph-db-spike.md#stretch-goals--search--comp
 
 ## Implementation notes
 
-- Prefer a thin adapter: Grafeo behind same `GraphStore` shapes as [spike-indradb.md](./spike-indradb.md) for apples-to-apples timing.
+- Prefer a thin adapter: Grafeo behind same `GraphStore` shapes as [indradb.md](./indradb.md) for apples-to-apples timing.
 - PFE schema: node label(s) + `type` property, or one label per `type` — document mapping.
 - Context shield limits must be enforced in **adapter**, not only by query discipline.
 - RDF, SPARQL, Gremlin, GraphQL: **out of scope** for openpfe v1 — do not score Grafeo on them.
@@ -164,8 +164,8 @@ Optional — [graph-db-spike.md](./graph-db-spike.md#stretch-goals--search--comp
 
 | Item | Result |
 |------|--------|
-| **Recommendation** | ☑ Pass with caveats (Linux + formal timings pending) |
-| **vs IndraDB** | ☐ Prefer Grafeo ☐ Prefer IndraDB ☑ Inconclusive (await IndraDB spike) |
+| **Recommendation** | ☑ Pass with caveats — **selected for v1** ([decision.md](../decision.md)) |
+| **vs shortlist** | ☑ Grafeo selected ☐ nanograph ☐ SparrowDB; IndraDB rejected |
 | **Caveats** | MSRV 1.91.1; transitive `bincode` unmaintained; young crate; BM25 ranking noisy on tiny corpus; Linux not re-run yet |
 | **Pinned version** | `grafeo = 0.5.42` |
 | **Features enabled** | `lpg`, `text-index` (not `embedded` / `ai` / `rdf` / `embed`) |
@@ -251,12 +251,12 @@ Persistent open uses a **`.grafeo` file** (e.g. `./.openpfe/graph/store/store.gr
 
 **Fail:** Cannot meet S4/S5, persistence unreliable, audit blocker, or build cost >> IndraDB without commensurate S6 benefit.
 
-**Prefer Grafeo over IndraDB only if:** Pass (or pass with caveats) **and** S6 is committed for near-term product **and** measurements/audit are not worse than IndraDB by team thresholds.
+**Locked (2026-05-25):** Grafeo selected for v1 — [decision.md](../decision.md). IndraDB rejected.
 
 ---
 
 ## Related
 
-- [graph-db-spike.md](./graph-db-spike.md)
-- [spike-indradb.md](./spike-indradb.md)
-- [graph-db-evaluation.md](./graph-db-evaluation.md)
+- [program.md](./program.md)
+- [indradb.md](./indradb.md)
+- [evaluation.md](./evaluation.md)

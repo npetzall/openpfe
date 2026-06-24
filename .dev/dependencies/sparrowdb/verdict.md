@@ -7,4 +7,4 @@
 - **C++ / native:** Default build is pure Rust; no `librocksdb-sys` or similar in this intake batch
 - **Approved:** 2026-05-24 (human — resume plan)
 
-**Follow-ups:** Pin exact version in [spike-sparrowdb.md](../../crates/openpfe-graph/spike-sparrowdb.md) Results when spike closes; re-run `cargo audit` if lock changes; evaluate `0.1.22+` on crates.io when published.
+**Follow-ups:** Pin exact version in [spike/sparrowdb.md](../../crates/openpfe-graph/spike/sparrowdb.md) Results when spike closes; re-run `cargo audit` if lock changes; evaluate `0.1.22+` on crates.io when published.

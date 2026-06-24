@@ -10,7 +10,7 @@
 
 [IndraDB](https://github.com/indradb/indradb) 5.x with the **`rocksdb-datastore`** feature was the **provisional** embedded graph engine for `openpfe-graph`. A spike on branch `spike_db_indradb` ([plan 006](../../plans/006-openpfe-graph-indradb-spike.md)) did not complete: the workspace **could not compile** the RocksDB backend, and no other IndraDB persistence option met openpfe’s durability, backup, and “prefer pure Rust build” requirements.
 
-**Verdict: No** — IndraDB will not be used in `openpfe-graph`. Engine selection continues with [Grafeo](./spike-grafeo.md), [nanograph](./spike-nanograph.md), and [SparrowDB](./spike-sparrowdb.md). See [graph-db-evaluation.md](./graph-db-evaluation.md).
+**Verdict: No** — IndraDB will not be used in `openpfe-graph`. v1 engine **locked to Grafeo** (2026-05-25) — [decision.md](../decision.md).
 
 ---
 
@@ -23,11 +23,11 @@ openpfe needs an **embedded labeled property graph** under `./.openpfe/graph/`:
 | No separate DB server | In-process `indradb-lib` |
 | Project-local persistence | RocksDB files under `./.openpfe/graph/store/` |
 | PFE schema | Vertices/edges with JSON properties (`problem`, `cluster`, `depends_on`, `member_of`, `interfaces`) |
-| Bounded traversals | Rust API + custom `subgraph` / cycle checks via [GraphStore](./design.md) |
+| Bounded traversals | Rust API + custom `subgraph` / cycle checks via [GraphStore](../design.md) |
 | Backup | Copy `store/` directory while server stopped |
 | Rust workspace fit | “Rust-native” graph library with a maintained disk backend |
 
-Early docs assumed **Apache-2.0** and a straightforward RocksDB story. The spike was meant to confirm S1–S5 (and document S6 search gaps) per [graph-db-spike.md](./graph-db-spike.md) and [spike-indradb.md](./spike-indradb.md).
+Early docs assumed **Apache-2.0** and a straightforward RocksDB story. The spike was meant to confirm S1–S5 (and document S6 search gaps) per [program.md](./program.md) and [indradb.md](./indradb.md).
 
 ---
 
@@ -65,7 +65,7 @@ IndraDB exposes other datastores, but none satisfy openpfe’s v1 bar:
 
 | Backend | Issue |
 |---------|--------|
-| **`MemoryDatastore`** | In-process only by default. Optional **msgpack** snapshot to a **single file** via `create_msgpack_db` / `sync` — different from a **directory** under `./.openpfe/graph/store/`, and not the operator backup story in [specification.md](./specification.md). |
+| **`MemoryDatastore`** | In-process only by default. Optional **msgpack** snapshot to a **single file** via `create_msgpack_db` / `sync` — different from a **directory** under `./.openpfe/graph/store/`, and not the operator backup story in [specification.md](../specification.md). |
 | **`indradb-sled` ([crates.io](https://crates.io/crates/indradb-sled) 0.1.0)** | Separate, **stale** crate (0.1.0) for a sled-backed store — **not aligned with IndraDB 5.x**, not maintained as a production path alongside current `indradb-lib`. Treat as **not production-ready** for openpfe. |
 | **Custom `Datastore` impl** | Out of scope for v1 — same cost as choosing another engine. |
 
@@ -110,10 +110,10 @@ These alone would not have been fatal if RocksDB had passed the spike; they weig
 | **Version evaluated** | `indradb-lib` **5.0.0** (`rocksdb-datastore`) |
 | **Spike result** | **Fail** (compile blocked; scenarios not run) |
 | **Intake verdict** | [.dev/dependencies/indradb/verdict.md](../../dependencies/indradb/verdict.md) |
-| **Spike checklist** | [spike-indradb.md](./spike-indradb.md) — closed |
+| **Spike checklist** | [indradb.md](./indradb.md) — closed |
 | **Implementation plan** | [006-openpfe-graph-indradb-spike.md](../../plans/006-openpfe-graph-indradb-spike.md) — cancelled |
 
-Normative crate docs (`design.md`, `specification.md`, `requirements.md`) now mark the engine as **TBD** pending spikes on the replacement shortlist.
+Normative crate docs mark the v1 engine as **Grafeo** (locked 2026-05-25) — [decision.md](../decision.md).
 
 ---
 
@@ -127,9 +127,9 @@ Normative crate docs (`design.md`, `specification.md`, `requirements.md`) now ma
 
 ## Next steps (openpfe)
 
-1. Run [graph-db-spike.md](./graph-db-spike.md) on **Grafeo**, **nanograph**, and **SparrowDB** (see [graph-db-evaluation.md](./graph-db-evaluation.md)).
-2. Lock engine lines in [specification.md](./specification.md) and [design.md](./design.md) only after a spike **Pass** (or Pass with documented caveats).
-3. Add a new implementation plan (e.g. `007-openpfe-graph-<engine>-spike` or impl plan) for the winner — do not revive plan 006 for IndraDB.
+1. ~~Run shortlist spikes~~ — **done**; Grafeo locked — [decision.md](../decision.md).
+2. Lock engine lines in [specification.md](../specification.md) and [design.md](../design.md) only after a spike **Pass** (or Pass with documented caveats).
+3. Phase 2 `openpfe-graph` implementation with **Grafeo** — [decision.md](../decision.md); do not revive plan 006 for IndraDB.
 
 ---
 
@@ -137,8 +137,9 @@ Normative crate docs (`design.md`, `specification.md`, `requirements.md`) now ma
 
 | Document | Role |
 |----------|------|
-| [graph-db-evaluation.md](./graph-db-evaluation.md) | Current candidate table and shortlist |
-| [spike-indradb.md](./spike-indradb.md) | Original spike checklist + Fail metadata |
-| [graph-db-spike.md](./graph-db-spike.md) | Shared S1–S6 scenarios |
+| [decision.md](../decision.md) | Locked engine (Grafeo) |
+| [evaluation.md](./evaluation.md) | Evaluation record |
+| [indradb.md](./indradb.md) | Original spike checklist + Fail metadata |
+| [program.md](./program.md) | Shared S1–S6 scenarios |
 | [dependencies/indradb/](../../dependencies/indradb/) | Intake and audit artifacts |
 | [006-openpfe-graph-indradb-spike.md](../../plans/006-openpfe-graph-indradb-spike.md) | Cancelled plan |

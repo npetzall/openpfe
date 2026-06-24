@@ -11,19 +11,23 @@ sequenceDiagram
   participant Host as IDE MCP host
   participant Bin as openpfe bin
   participant IPC as Server IPC
-  participant MCP as openpfe-mcp
+  participant Handler as McpHandler
+  participant Browser as Web UI Debug
 
   Host->>Bin: stdio MCP
   Bin->>IPC: envelope type mcp
-  IPC->>MCP: payload JSON-RPC
-  MCP-->>IPC: response payload
+  IPC->>Handler: payload JSON-RPC
+  Handler-->>IPC: response payload
   IPC-->>Bin: envelope
   Bin-->>Host: stdio MCP
+
+  Browser->>Handler: POST /debug/mcp JSON-RPC
+  Handler-->>Browser: JSON-RPC response
 ```
 
-- **Host attachment:** `openpfe mcp` exposes MCP on **stdio** per [Model Context Protocol](https://modelcontextprotocol.io/).
-- **Server handler:** `openpfe-mcp` runs inside the server process; frames use IPC `type: mcp` — not HTTP.
-- **Parallel to humans:** `openpfe-ui` (HTTP) and `openpfe-mcp` (IPC) are symmetric APIs for different audiences — do not merge crates.
+- **Host attachment (agents):** `openpfe mcp` exposes MCP on **stdio** per [Model Context Protocol](https://modelcontextprotocol.io/).
+- **Server handler:** `McpHandler` in `openpfe-mcp` — one instance per server process.
+- **Transports:** IPC `type: mcp` (agents); HTTP `POST /api/v1/debug/mcp` in `openpfe-ui` (browser Debug). Tool semantics live only in `openpfe-mcp`.
 
 ## Implementation rules
 
@@ -31,7 +35,7 @@ sequenceDiagram
 2. **Context shield:** tools return the **minimum** graph context for the requested component/task (per [openpfe_tooling.md](../../openpfe_tooling.md)); avoid dumping the full graph by default.
 3. **Tool/resource names** are stable once published; breaking renames require version note in `openpfe-mcp/specification.md`.
 4. **Errors:** map domain failures to MCP-compliant JSON-RPC errors; do not leak stack traces on stdio.
-5. **No HTTP in MCP crate** — keeps dependency graph clean per [workspace-crates.md](../workspace-crates.md).
+5. **No HTTP routes in MCP crate** — HTTP debug transport lives in `openpfe-ui`; `openpfe-mcp` exports `McpHandler` only per [workspace-crates.md](../workspace-crates.md).
 
 ## stdio bridge (`openpfe` binary)
 
@@ -55,6 +59,7 @@ Normative list: [openpfe-mcp/specification.md](../crates/openpfe-mcp/specificati
 
 - Unit-test handler logic with mock core/graph.
 - Integration: stdio client fixture driving `openpfe mcp` against a test server — see [testing-rust.md](./testing-rust.md).
+- HTTP debug: `POST /debug/mcp` with JSON-RPC fixtures against mounted `api_router` — same handler as IPC.
 - Do not require IDE for automated tests.
 
 ## Related

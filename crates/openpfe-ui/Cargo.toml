@@ -10,3 +10,15 @@ publish.workspace = true
 [dependencies]
 openpfe-graph = { path = "../openpfe-graph" }
 openpfe-llm = { path = "../openpfe-llm" }
+openpfe-mcp = { path = "../openpfe-mcp" }
+axum = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+tempfile = "3.20"
+tokio = { workspace = true }
+tower = { version = "0.5", features = ["util"] }
+http-body-util = "0.1"

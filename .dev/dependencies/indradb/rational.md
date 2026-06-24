@@ -2,7 +2,7 @@
 
 ## Need
 
-Embedded labeled property graph for the PFE problem graph (nodes, typed edges, JSON properties) per [openpfe-graph/graph-db-evaluation.md](../../crates/openpfe-graph/graph-db-evaluation.md).
+Embedded labeled property graph for the PFE problem graph (nodes, typed edges, JSON properties) per [openpfe-graph/spike/evaluation.md](../../crates/openpfe-graph/spike/evaluation.md).
 
 ## Scope
 
@@ -30,4 +30,4 @@ Pulled via `rocksdb-datastore`: `rocksdb`, `librocksdb-sys`, `bincode`. No separ
 
 - `indradb` meta-crate — server-oriented; spike uses `indradb-lib` directly.
 - In-memory only — insufficient for durability/backup scenarios.
-- Grafeo — [spike-grafeo.md](../../crates/openpfe-graph/spike-grafeo.md).
+- Grafeo — [spike/grafeo.md](../../crates/openpfe-graph/spike/grafeo.md).

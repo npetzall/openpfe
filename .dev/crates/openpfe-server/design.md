@@ -19,7 +19,7 @@ Workspace role: [workspace-crates.md](../../workspace-crates.md).
 | **`pid` flock (Rust)** | **`fd-lock`** crate — hold `LockFile` for process lifetime; write ASCII PID after lock acquired. |
 | **Shutdown (v1)** | **Bounded graceful drain** then exit. Default **5s** (`OPENPFE_SHUTDOWN_TIMEOUT` / `server.json`). Stop accept → drain in-flight IPC MCP + HTTP handlers → cancel remainder → close listeners → remove runtime files. |
 | **Logging (v1)** | **Detached (default):** append to `./.openpfe/server/openpfe.log`. **Foreground:** `--foreground` or `OPENPFE_FOREGROUND=1` → **stderr** (no log file). Level from **`server.json`** `server.log_level` (default `info`). |
-| **Server config** | **`./.openpfe/server.json`** (JSON) — load/save in **this crate**; see [specification.md](./specification.md#serverjson-project-config). |
+| **Server config** | **`./.openpfe/server.json`** (JSON) — load/save and IPC admin **`server_config_get`** / **`server_config_put`** in **this crate**; see [specification.md](./specification.md#serverjson-project-config). **Not** HTTP (`openpfe-ui`) or MCP. |
 | **Security (v1)** | **`127.0.0.1` bind only** + project-scoped UDS under `./.openpfe/server/` — **no** HTTP bearer tokens, **no** IPC shared secret ([protocols.md](../../guidelines/protocols.md)). API auth deferred — [openpfe-ui/design.md](../openpfe-ui/design.md). |
 | **CORS (v1)** | **Not enabled** — embedded Web UI is same-origin; TUI/CLI HTTP clients are not browsers (no preflight). Revisit when a cross-origin dev client is required. |
 
@@ -30,7 +30,7 @@ Workspace role: [workspace-crates.md](../../workspace-crates.md).
 3. Write current **PID** to `pid` (lock still held via open fd).
 4. If `socket` path exists → **staleness check** (connect + echo); unlink if dead.
 5. Bind Unix socket at `socket`, bind HTTP on `127.0.0.1:0`; keep `http_base_url` in memory for echo.
-6. Load **`server.json`**, graph (`openpfe-graph`), **`LlmService`** (`openpfe-llm` / `llm.json` + models); build **`AppState`** for `openpfe-ui`.
+6. Load **`server.json`** (process config), open graph (`openpfe-graph`), construct **`LlmService`** (`openpfe-llm` / `llm.json` + models), construct **`McpHandler`** (`openpfe-mcp` over graph); build **`AppState`** (graph + LLM + `McpHandler`) for `openpfe-ui`. IPC dispatch routes `type: mcp` to the same **`McpHandler`** and handles admin envelopes including **`server_config_*`**.
 7. Serve until shutdown IPC or signal; on exit close lock fd, remove `socket`, remove or truncate `pid`.
 
 **Rust locking:** `fd-lock` on `./.openpfe/server/pid` (macOS + Linux).
@@ -51,8 +51,8 @@ if connect/echo fails → unlink socket path, then bind
 
 | Listener | Role |
 |----------|------|
-| **HTTP** | Static from `openpfe-webui`; human API from `openpfe-ui` `/api/v1/…` |
-| **IPC** | Accept; route envelopes to `openpfe-mcp` or admin (`shutdown`) |
+| **HTTP** | Static from `openpfe-webui`; human API from `openpfe-ui` `/api/v1/…` (including `POST /debug/mcp` → shared `McpHandler`) |
+| **IPC** | Accept; route `type: mcp` to shared `McpHandler`; admin (`shutdown`, `server_config_*`, …) in this crate |
 
 ## Graceful shutdown
 

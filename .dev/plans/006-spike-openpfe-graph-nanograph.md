@@ -2,7 +2,7 @@
 
 **Status:** Complete (2026-05-24) — macOS S1–S6 + S6+ stretch green; Linux skipped; S4 uses 200-node bulk (export latency); S6+ latency tests ignored in debug.
 
-**Read when:** executing the nanograph branch of [graph-db-spike.md](../crates/openpfe-graph/graph-db-spike.md) before locking the v1 engine in [graph-db-evaluation.md](../crates/openpfe-graph/graph-db-evaluation.md).
+**Read when:** executing the nanograph branch of [spike/program.md](../crates/openpfe-graph/spike/program.md) before locking the v1 engine in [spike/evaluation.md](../crates/openpfe-graph/spike/evaluation.md).
 
 **Branch:** Work on a dedicated spike branch (e.g. `spike/nanograph`); do not merge nanograph into `openpfe-graph` or add it to production `Cargo.toml` until evaluation is updated and a separate implementation plan is approved.
 
@@ -10,12 +10,12 @@
 
 | Doc | Use |
 |-----|-----|
-| [graph-db-spike.md](../crates/openpfe-graph/graph-db-spike.md) | Shared scenarios S1–S6+, fixture, acceptance, measurements, decision rules |
-| [spike-nanograph.md](../crates/openpfe-graph/spike-nanograph.md) | nanograph checklist, Results template, S6 focus |
-| [graph-db-evaluation.md](../crates/openpfe-graph/graph-db-evaluation.md) | Provisional shortlist; update nanograph row after spike |
-| [grafeo-outcome.md](../crates/openpfe-graph/grafeo-outcome.md) | Apples-to-apples baseline (Grafeo macOS complete) |
-| [nanograph-outcome.md](../crates/openpfe-graph/nanograph-outcome.md) | Outcome summary — scenarios, use cases, findings, improvements |
-| [spike-grafeo.md](../crates/openpfe-graph/spike-grafeo.md) | Shared fixture / `GraphStore` pattern reference |
+| [spike/program.md](../crates/openpfe-graph/spike/program.md) | Shared scenarios S1–S6+, fixture, acceptance, measurements, decision rules |
+| [spike/nanograph.md](../crates/openpfe-graph/spike/nanograph.md) | nanograph checklist, Results template, S6 focus |
+| [spike/evaluation.md](../crates/openpfe-graph/spike/evaluation.md) | Provisional shortlist; update nanograph row after spike |
+| [spike/grafeo-outcome.md](../crates/openpfe-graph/spike/grafeo-outcome.md) | Apples-to-apples baseline (Grafeo macOS complete) |
+| [spike/nanograph-outcome.md](../crates/openpfe-graph/spike/nanograph-outcome.md) | Outcome summary — scenarios, use cases, findings, improvements |
+| [spike/grafeo.md](../crates/openpfe-graph/spike/grafeo.md) | Shared fixture / `GraphStore` pattern reference |
 | [006-spike-openpfe-graph-grafeo.md](./006-spike-openpfe-graph-grafeo.md) | Spike crate layout and task grouping reference |
 | [openpfe-graph/design.md](../crates/openpfe-graph/design.md) | Target `GraphStore` operations (prototype only in spike) |
 | [openpfe-graph/specification.md](../crates/openpfe-graph/specification.md) | Node/edge types, properties, limits |
@@ -29,7 +29,7 @@
 
 - [x] Phase 1 complete — [005-openpfe-wiring.md](./005-openpfe-wiring.md) **Complete** (lock, socket, echo, HTTP stub).
 - [x] Spike branch created and checked out (`spike_db_nanograph`).
-- [x] Grafeo spike results available for comparison ([spike-grafeo.md](../crates/openpfe-graph/spike-grafeo.md) / [grafeo-outcome.md](../crates/openpfe-graph/grafeo-outcome.md)) — **not** a blocker; may run in parallel on another branch.
+- [x] Grafeo spike results available for comparison ([spike/grafeo.md](../crates/openpfe-graph/spike/grafeo.md) / [spike/grafeo-outcome.md](../crates/openpfe-graph/spike/grafeo-outcome.md)) — **not** a blocker; may run in parallel on another branch.
 
 ### Dependency intake — nanograph (phase A — complete before spike implementation)
 
@@ -52,9 +52,9 @@ Align `rust-toolchain.toml` with nanograph MSRV before implementation if workspa
 
 Time-boxed proof that **[nanograph](https://github.com/nanograph/nanograph)** can back openpfe’s v1 problem graph as the primary **Grafeo alternative**: folder-based persistence under a project-local path, `GraphStore`-shaped operations for **S1–S5**, **required S6** engine-native full-text/BM25 on `title`/`description`, plus durability/backup and supply-chain evidence on **macOS and Linux**. Explicitly record **schema friction** (nanograph `.pg` schema-as-code vs PFE ad-hoc JSON properties) and whether a v1 mapping is acceptable.
 
-Outcome updates [spike-nanograph.md](../crates/openpfe-graph/spike-nanograph.md) **Results** and [graph-db-evaluation.md](../crates/openpfe-graph/graph-db-evaluation.md); **does not** ship product code in `openpfe-graph`.
+Outcome updates [spike/nanograph.md](../crates/openpfe-graph/spike/nanograph.md) **Results** and [spike/evaluation.md](../crates/openpfe-graph/spike/evaluation.md); **does not** ship product code in `openpfe-graph`.
 
-**Time box:** 1–2 days per [graph-db-spike.md](../crates/openpfe-graph/graph-db-spike.md).
+**Time box:** 1–2 days per [spike/program.md](../crates/openpfe-graph/spike/program.md).
 
 ## Spike crate layout
 
@@ -85,9 +85,9 @@ Set **Status** to **In progress — intake approved (YYYY-MM-DD)** when human cl
 #### 1. Spike crate scaffold
 
 - [x] `crates/openpfe-graph-spike/Cargo.toml` — nanograph only (no path dep on product `openpfe-graph`)
-- [x] Thin module: `GraphStore`-shaped prototype matching [graph-db-spike.md § B](../crates/openpfe-graph/graph-db-spike.md#b-graphstore-shaped-operations)
+- [x] Thin module: `GraphStore`-shaped prototype matching [spike/program.md § B](../crates/openpfe-graph/spike/program.md#b-graphstore-shaped-operations)
 - [x] Temp storage: `<temp>/openpfe-graph-spike/nanograph/` — document on-disk files for backup section
-- [x] Update [spike-nanograph.md](../crates/openpfe-graph/spike-nanograph.md) metadata (branch, commit SHA, owner, platforms)
+- [x] Update [spike/nanograph.md](../crates/openpfe-graph/spike/nanograph.md) metadata (branch, commit SHA, owner, platforms)
 
 #### 2. Schema mapping (nanograph-specific)
 
@@ -95,14 +95,14 @@ Set **Status** to **In progress — intake approved (YYYY-MM-DD)** when human cl
 - [x] Map PFE JSON properties (`title`, `description`, `status`, `cluster_id`, contract fields on `interfaces`) — document acceptable v1 compromises (fixed columns vs JSON blob vs schema evolution)
 - [x] License check: **MIT** — confirm in repo `LICENSE` / crates.io metadata
 
-#### 3. Shared PFE fixture ([graph-db-spike.md § C](../crates/openpfe-graph/graph-db-spike.md#c-pfe-seed-fixture-all-spikes))
+#### 3. Shared PFE fixture ([spike/program.md § C](../crates/openpfe-graph/spike/program.md#c-pfe-seed-fixture-all-spikes))
 
 - [x] One `cluster` + three `problem` nodes; `member_of` → cluster; `depends_on` chain `p1 → p2 → p3`
 - [x] One `interfaces` edge with `contract_body`, `version`, `consumer_id`, `provider_id`
 - [x] Optional ~500–1000 synthetic `problem` nodes for S4 smoke
 - [x] Stable ids across reopen; document id strategy vs Grafeo spike
 
-#### 4. Scenarios S1–S5 ([spike-nanograph.md](../crates/openpfe-graph/spike-nanograph.md) lifecycle & curation tasks)
+#### 4. Scenarios S1–S5 ([spike/nanograph.md](../crates/openpfe-graph/spike/nanograph.md) lifecycle & curation tasks)
 
 - [x] **S1** — create/open; insert cluster, problems, edges; reopen round-trip; UUID/stable ids
 - [x] **S2** — upsert/delete nodes and edges; delete problem removes incident edges; cluster remains
@@ -117,7 +117,7 @@ Set **Status** to **In progress — intake approved (YYYY-MM-DD)** when human cl
 - [x] Record query latency (ms); note API (Rust vs CLI) and mapping to future MCP `find_similar`
 - [x] Document false positive/negative cases in Results
 
-#### 6. Durability, backup, platforms ([graph-db-spike.md § A, D, F](../crates/openpfe-graph/graph-db-spike.md))
+#### 6. Durability, backup, platforms ([spike/program.md § A, D, F](../crates/openpfe-graph/spike/program.md))
 
 - [x] Write fixture → close → reopen → assert counts + known id/edge
 - [ ] Optional: kill mid-write — document behavior in Results
@@ -126,7 +126,7 @@ Set **Status** to **In progress — intake approved (YYYY-MM-DD)** when human cl
 - [x] **macOS** — clean debug build + `cargo test -p openpfe-graph-spike`
 - [ ] **Linux** — same (CI or manual); record version/arch in Results
 
-#### 7. Supply chain measurements ([graph-db-spike.md § E](../crates/openpfe-graph/graph-db-spike.md#e-supply-chain-and-build))
+#### 7. Supply chain measurements ([spike/program.md § E](../crates/openpfe-graph/spike/program.md#e-supply-chain-and-build))
 
 - [x] `cargo tree -i <nanograph-crate>` — note Lance/Arrow/DataFusion weight in Results
 - [x] `cargo audit` summary (should match intake unless lock changed)
@@ -135,17 +135,17 @@ Set **Status** to **In progress — intake approved (YYYY-MM-DD)** when human cl
 
 #### 8. Stretch S6+ (optional — time box after S1–S6)
 
-Only if baseline S1–S6 are green; see [graph-db-spike.md stretch](../crates/openpfe-graph/graph-db-spike.md#stretch-goals--search--compare-s6):
+Only if baseline S1–S6 are green; see [spike/program.md stretch](../crates/openpfe-graph/spike/program.md#stretch-goals--search--compare-s6):
 
 - [x] Extend fixture with P-lex / P-sem / P-struct pairs
 - [x] Lexical / semantic / hybrid search if upstream supports without heavy unused deps
-- [x] Fill S6+ subsection in [spike-nanograph.md](../crates/openpfe-graph/spike-nanograph.md) Results
+- [x] Fill S6+ subsection in [spike/nanograph.md](../crates/openpfe-graph/spike/nanograph.md) Results
 
 #### 9. Documentation and decision
 
-- [x] Complete [spike-nanograph.md](../crates/openpfe-graph/spike-nanograph.md) **Results** (Recommendation, pinned version, schema friction, S6 table, measurements, backup procedure)
-- [x] Check all task boxes in [spike-nanograph.md](../crates/openpfe-graph/spike-nanograph.md) task list
-- [x] Update [graph-db-evaluation.md](../crates/openpfe-graph/graph-db-evaluation.md) nanograph row per [graph-db-spike.md decision rules](../crates/openpfe-graph/graph-db-spike.md#decision-after-spikes)
+- [x] Complete [spike/nanograph.md](../crates/openpfe-graph/spike/nanograph.md) **Results** (Recommendation, pinned version, schema friction, S6 table, measurements, backup procedure)
+- [x] Check all task boxes in [spike/nanograph.md](../crates/openpfe-graph/spike/nanograph.md) task list
+- [x] Update [spike/evaluation.md](../crates/openpfe-graph/spike/evaluation.md) nanograph row per [spike/program.md decision rules](../crates/openpfe-graph/spike/program.md#decision-after-spikes)
 - [x] If engine choice changes: note follow-up for `design.md` / `specification.md` (do **not** edit product engine lines until shortlist spikes complete unless human directs early lock)
 
 #### 10. Verification
@@ -157,20 +157,20 @@ Only if baseline S1–S6 are green; see [graph-db-spike.md stretch](../crates/op
 ## Acceptance criteria
 
 - [x] Intake artifacts for nanograph present; human approval recorded in plan and `verdict.md`
-- [x] [spike-nanograph.md](../crates/openpfe-graph/spike-nanograph.md) **Recommendation** filled: Pass / Pass with caveats / Fail
+- [x] [spike/nanograph.md](../crates/openpfe-graph/spike/nanograph.md) **Recommendation** filled: Pass / Pass with caveats / Fail
 - [x] **Schema friction** documented with clear v1 accept/reject recommendation
 - [x] S1–S5 pass on **macOS** per shared acceptance criteria; **Linux** skipped (team decision, same as Grafeo spike)
 - [x] **S6** pass (engine-native BM25/FTS) with measurements and manual case notes
 - [x] Durability smoke and folder backup/restore documented
 - [x] `cargo audit` outcome recorded (clean or advisories + remediation in verdict)
 - [x] `protoc` and MSRV requirements recorded for operators/CI
-- [x] [graph-db-evaluation.md](../crates/openpfe-graph/graph-db-evaluation.md) updated with nanograph spike outcome
+- [x] [spike/evaluation.md](../crates/openpfe-graph/spike/evaluation.md) updated with nanograph spike outcome
 - [x] Product `openpfe-graph` remains empty of engine code; spike isolated to `openpfe-graph-spike` on spike branch
 
 ## Out of scope
 
 - Implementing `openpfe-graph` production adapter or server wiring (phase 2 implementation plan)
-- [spike-sparrowdb.md](../crates/openpfe-graph/spike-sparrowdb.md) execution (separate plan; compare when all shortlist spikes exist)
+- [spike/sparrowdb.md](../crates/openpfe-graph/spike/sparrowdb.md) execution (separate plan; compare when all shortlist spikes exist)
 - Exposing nanograph query languages on HTTP or MCP
 - `openpfe-ui`, `openpfe-mcp`, MCP tools (`openpfe_graph_find_similar`, etc.)
 - Promoting `openpfe-graph-spike` to a permanent workspace member on `main` without human decision
@@ -179,5 +179,5 @@ Only if baseline S1–S6 are green; see [graph-db-spike.md stretch](../crates/op
 
 ## Next
 
-- Run **SparrowDB** spike ([spike-sparrowdb.md](../crates/openpfe-graph/spike-sparrowdb.md)) — plan TBD (e.g. `007-spike-openpfe-graph-sparrowdb.md`).
-- After **all** shortlist spikes: compare S6, schema friction, build/audit, latency in [graph-db-evaluation.md](../crates/openpfe-graph/graph-db-evaluation.md); lock engine; then phase 2 **`openpfe-graph` implementation** plan (TBD in [plans/README.md](./README.md)).
+- Run **SparrowDB** spike ([spike/sparrowdb.md](../crates/openpfe-graph/spike/sparrowdb.md)) — plan TBD (e.g. `007-spike-openpfe-graph-sparrowdb.md`).
+- After **all** shortlist spikes: compare S6, schema friction, build/audit, latency in [spike/evaluation.md](../crates/openpfe-graph/spike/evaluation.md); lock engine; then phase 2 **`openpfe-graph` implementation** plan (TBD in [plans/README.md](./README.md)).

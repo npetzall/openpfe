@@ -10,7 +10,7 @@ Framing, envelope routing types, UDS connect/bind (v1 Unix). **No** domain, MCP 
 | **Abstraction** | `IpcTransport` trait for future Windows (named pipe / TCP). |
 | **Framing** | Length-prefixed frames (max size cap). |
 | **Runtime (v1)** | **tokio** Unix domain sockets (`tokio::net::UnixListener` / `UnixStream`) — matches async server in `openpfe-server`. |
-| **Admin IPC (v1)** | `echo`, `shutdown`, `mcp` only — used by CLI, IDE bridge, and future TUI for control; not for graph/config data. |
+| **Admin IPC (v1)** | `echo`, `shutdown`, `server_config_get`, `server_config_put` — CLI and future TUI control plane. **`type: mcp`** is the **agent** MCP transport (stdio bridge → shared `McpHandler`). Browser MCP uses HTTP `POST /debug/mcp` in `openpfe-ui`. **Not** for graph REST or `llm.json` (humans use HTTP). |
 | **Message encoding (v1)** | **4-byte LE length** + UTF-8 JSON **envelope** per frame ([specification.md](./specification.md)). MCP JSON-RPC lives only inside `type: mcp` `payload` — not at the framing layer. No CBOR, no bare JSON-RPC framing in v1. |
 | **Protocol version (v1)** | **`"v": 1` on every frame** — no post-connect handshake, no negotiation ([openpfe/design.md](../openpfe/design.md)). Unsupported `v` → `type: error` response, then close connection on repeated violations. |
 | **Correlation (v1)** | **Per-connection** pairing: client sets envelope `id` (u64); server **echoes the same `id`** on the response envelope. One in-flight request per connection in v1 (stdio bridge is sequential). |
@@ -23,7 +23,7 @@ Framing, envelope routing types, UDS connect/bind (v1 Unix). **No** domain, MCP 
 
 - Multiple simultaneous clients (MCP proxies, future TUI, `stop` while Web UI active).
 - **MCP:** carry MCP messages; server runs handler (may stream).
-- **Extensibility:** reserved kinds for CLI (`stop`, status) without breaking MCP clients.
+- **Extensibility:** admin envelope kinds (`server_config_get`, `server_config_put`, future `status`) without breaking MCP clients.
 
 ## Layering
 

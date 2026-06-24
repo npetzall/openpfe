@@ -50,7 +50,7 @@ Normative API detail: [openpfe-ui/specification.md](../openpfe-ui/specification.
 
 ## `server.json` (project config)
 
-Path: **`./.openpfe/server.json`** (JSON). Loaded/saved by **`openpfe-server`**; HTTP **`GET`/`PUT` `/api/v1/server/config`** via [openpfe-ui/specification.md](../openpfe-ui/specification.md) (same document shape as API).
+Path: **`./.openpfe/server.json`** (JSON). Loaded/saved by **`openpfe-server`** only. Read/write for trusted local clients via IPC admin envelopes **`server_config_get`** / **`server_config_put`** — [openpfe-ipc/specification.md](../openpfe-ipc/specification.md). **Not** on human HTTP (`openpfe-ui`) and **not** on MCP.
 
 Missing file → defaults (`#[serde(default)]`).
 
@@ -75,6 +75,14 @@ Missing file → defaults (`#[serde(default)]`).
 | `http.host` | `"127.0.0.1"` | Bind address (port remains ephemeral) |
 
 Env `OPENPFE_SHUTDOWN_TIMEOUT` may override drain seconds when set (document precedence at implementation).
+
+### IPC `server_config_put` — runtime apply (v1)
+
+| Field | On successful PUT |
+|-------|-------------------|
+| `server.log_level` | Apply immediately to active log filter |
+| `server.shutdown_timeout_secs` | Apply immediately to in-memory graceful-drain timeout |
+| `http.host` | Persist only — **rebind requires server restart** (v1 binds once at startup) |
 
 ## Shutdown ordering
 

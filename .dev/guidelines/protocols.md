@@ -9,11 +9,13 @@
 | Client | Transport | API surface |
 |--------|-----------|-------------|
 | CLI (`openpfe`, `stop`) | Unix domain socket | IPC envelopes |
-| Browser / Web UI | HTTP | `/api/v1/…` |
-| TUI (future) | HTTP (data); IPC (echo, shutdown) | Same HTTP as browser for graph/config |
-| IDE agent | stdio MCP → CLI bridge → IPC `type: mcp` | MCP JSON-RPC in envelope `payload` |
+| Browser / Web UI | HTTP | `/api/v1/…` — graph + LLM REST; MCP via `POST /debug/mcp` (Debug panel) |
+| TUI (future) | HTTP (product data); IPC (admin) | HTTP: graph + `llm.json` (same as browser). IPC: `echo`, `shutdown`, **`server_config_*`** |
+| IDE agent | stdio MCP → CLI bridge → IPC `type: mcp` | MCP JSON-RPC in envelope `payload` — **no** `server.json` |
 
-**Do not** add graph/config over IPC for browser or TUI without updating all affected crate specs and [cross-cutting.md](../cross-cutting.md).
+**MCP:** one shared **`McpHandler`** (`openpfe-mcp`) — IPC for agents, HTTP debug route for browser ([openpfe-mcp/specification.md](../crates/openpfe-mcp/specification.md)).
+
+**Do not** add graph or **`llm.json`** over IPC for browser or TUI. **`server.json`** is **IPC admin only** ([openpfe-ipc/specification.md](../crates/openpfe-ipc/specification.md)) — not MCP, not human HTTP.
 
 ## IPC (project control plane)
 
@@ -26,7 +28,7 @@
 ```json
 {
   "v": 1,
-  "type": "echo | mcp | shutdown",
+  "type": "echo | mcp | shutdown | server_config_get | server_config_put",
   "id": "<correlation-id>",
   "payload": { }
 }
@@ -41,6 +43,8 @@
 |--------|-----|------------------------|
 | `echo` | Discover server; obtain **`http_base_url`** | `http_base_url` **required** in success payload |
 | `shutdown` | Graceful stop (`openpfe stop`) | `ok` then connection close |
+| `server_config_get` | Read **`server.json`** (admin) | Full document in `payload` |
+| `server_config_put` | Replace **`server.json`** (admin) | `{ "ok": true }`; runtime apply in [openpfe-server/specification.md](../crates/openpfe-server/specification.md) |
 | `mcp` | MCP JSON-RPC (or batch) in `payload` | MCP response in `payload` (v1: no IPC streaming) |
 | `error` | (server only) protocol/validation failure | `code`, `message` in `payload` |
 

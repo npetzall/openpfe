@@ -10,16 +10,16 @@ System overview. **Normative detail** is in [crates/](./crates/); **multi-crate 
 | **Project data** | `server.json`, `llm.json`, graph under `./.openpfe/` (JSON; **cwd** = project root) | [openpfe-server/design.md](./crates/openpfe-server/design.md), [openpfe-llm/design.md](./crates/openpfe-llm/design.md), [openpfe-graph/design.md](./crates/openpfe-graph/design.md) |
 | **Shared (machine)** | Model weights under `USER_HOME/.openpfe/models/` | [openpfe-llm/specification.md](./crates/openpfe-llm/specification.md) |
 | **IPC (v1)** | Unix domain sockets (macOS/Linux) | [openpfe-ipc/design.md](./crates/openpfe-ipc/design.md) |
-| **Graph store** | **IndraDB + RocksDB**, `./.openpfe/graph/store/` | [openpfe-graph/specification.md](./crates/openpfe-graph/specification.md) |
+| **Graph store** | **Grafeo** (embedded LPG), `./.openpfe/graph/store/` | [openpfe-graph/decision.md](./crates/openpfe-graph/decision.md), [openpfe-graph/specification.md](./crates/openpfe-graph/specification.md) |
 | **Project root** | **cwd** = project root | [cross-cutting.md](./cross-cutting.md) |
 | **HTTP address** | From IPC echo only | [openpfe-ipc/specification.md](./crates/openpfe-ipc/specification.md) |
 | **Singleton** | `flock` on `./.openpfe/server/pid` | [openpfe-server/design.md](./crates/openpfe-server/design.md) |
-| **Human vs agent** | `openpfe-ui` (HTTP) / `openpfe-mcp` (IPC) | [workspace-crates.md](./workspace-crates.md) |
+| **Human vs agent** | `openpfe-ui` (HTTP REST + MCP debug) / `openpfe-mcp` handler (IPC for agents) | [workspace-crates.md](./workspace-crates.md) |
 | **Local LLM** | `openpfe-llm` in v1 | [openpfe-llm/design.md](./crates/openpfe-llm/design.md) |
 | **HTTP stack (v1)** | **axum** on **hyper** (router in `openpfe-ui`) | [openpfe-ui/design.md](./crates/openpfe-ui/design.md) |
 | **HTTP middleware** | **tower-http** `TraceLayer` only in v1 (no `CorsLayer`) | [openpfe-server/design.md](./crates/openpfe-server/design.md), below |
 | **Async runtime (v1)** | **tokio** workspace-wide | [openpfe-server/design.md](./crates/openpfe-server/design.md) |
-| **Graph crate** | Separate **`openpfe-graph`** member; **IndraDB** (RocksDB) | [openpfe-graph/design.md](./crates/openpfe-graph/design.md) |
+| **Graph crate** | Separate **`openpfe-graph`** member; **Grafeo** adapter | [openpfe-graph/design.md](./crates/openpfe-graph/design.md) |
 | **TUI transports** | Data over HTTP; control over IPC only | Below |
 
 ## Technology stack (v1)
@@ -105,12 +105,13 @@ Future TUI follows the same split as Web UI + CLI control:
 
 | Concern | Transport | API |
 |---------|-----------|-----|
-| Graph, config, models, inference | **HTTP only** | `/api/v1/…` via `openpfe-ui` (same as browser) |
-| Server up / `http_base_url` | **IPC** | `type: echo` — [openpfe-ipc/specification.md](./crates/openpfe-ipc/specification.md) |
+| Graph, `llm.json`, models, inference | **HTTP only** | `/api/v1/…` via `openpfe-ui` (same as browser) |
+| `server.json` (process config) | **IPC admin** | `server_config_get` / `server_config_put` — [openpfe-ipc/specification.md](./crates/openpfe-ipc/specification.md) |
+| Server up / `http_base_url` | **IPC** | `type: echo` |
 | Graceful stop | **IPC** | `type: shutdown` (same as `openpfe stop`) |
 | MCP / agent tools | **Not via TUI** | IDE uses `openpfe mcp` stdio bridge |
 
-No graph or config **over IPC** for TUI in v1 (avoids duplicating the human API). Optional future: `type: status` admin envelope for TUI/CLI diagnostics — not required for first TUI.
+No graph or **`llm.json`** over IPC for TUI (avoids duplicating the human product API). **`server.json`** is the exception — trusted local admin over IPC only, not HTTP or MCP.
 
 ## Startup scenarios
 
@@ -138,4 +139,4 @@ Functional scope: crate [requirements.md](./crates/openpfe/requirements.md) file
 | [cross-cutting.md](./cross-cutting.md) | Multi-crate contracts, FR traceability |
 | [workspace-crates.md](./workspace-crates.md) | Members, deps, [documentation convention](./workspace-crates.md#documentation-convention) |
 | [crates/](./crates/) | Per-crate `design` / `requirements` / `specification` |
-| [openpfe-graph/graph-db-evaluation.md](./crates/openpfe-graph/graph-db-evaluation.md) | Graph engine research |
+| [openpfe-graph/decision.md](./crates/openpfe-graph/decision.md) | Graph engine (**Grafeo**, locked) |

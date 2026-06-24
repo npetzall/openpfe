@@ -1,10 +1,10 @@
 # Spike: IndraDB 5.x + RocksDB
 
-**Parent program:** [graph-db-spike.md](./graph-db-spike.md)
+**Parent program:** [program.md](./program.md)
 
 **Engine:** [IndraDB](https://github.com/indradb/indradb) with **`rocksdb-datastore`** feature.
 
-**Provisional v1 choice:** was documented in [graph-db-evaluation.md](./graph-db-evaluation.md) — **rejected**. See [indradb-outcome.md](./indradb-outcome.md).
+**Provisional v1 choice:** was documented in [evaluation.md](./evaluation.md) — **rejected**. See [indradb-outcome.md](./indradb-outcome.md).
 
 ---
 
@@ -23,9 +23,9 @@
 ## Goals
 
 1. Prove embedded open/create at `./.openpfe/graph/store/`-style path on macOS and Linux.
-2. Implement [graph-db-spike.md](./graph-db-spike.md) scenarios **S1–S5** behind a `GraphStore`-shaped prototype.
+2. Implement [program.md](./program.md) scenarios **S1–S5** behind a `GraphStore`-shaped prototype.
 3. Document **S6** (similar problem search) as **out of engine** and acceptable for v1 without blocking.
-4. Capture build, audit, backup, and durability evidence for [graph-db-evaluation.md](./graph-db-evaluation.md).
+4. Capture build, audit, backup, and durability evidence for [evaluation.md](./evaluation.md).
 
 ---
 
@@ -44,7 +44,7 @@ Also note `indradb-lib` if used directly.
 
 | Path | Use |
 |------|-----|
-| `<temp>/openpfe-graph-spike/store/` | Mimics [specification.md](./specification.md) `./.openpfe/graph/store/` |
+| `<temp>/openpfe-graph-spike/store/` | Mimics [specification.md](../specification.md) `./.openpfe/graph/store/` |
 
 Use a fresh directory per run; never point at a real project graph during experiments.
 
@@ -97,7 +97,7 @@ Use a fresh directory per run; never point at a real project graph during experi
 
 ### 7. Stretch — search & compare (S6+)
 
-Optional — [graph-db-spike.md](./graph-db-spike.md#stretch-goals--search--compare-s6). If run:
+Optional — [program.md#stretch-goals--search--compare-s6](./program.md#stretch-goals--search--compare-s6). If run:
 
 - [ ] Lexical via sidecar or brute-force on fixture; structural via `neighbors` + `cluster_id`
 - [ ] Semantic: document deferral or spike with `openpfe-llm` embeddings + in-memory ranking (not blocking)
@@ -119,7 +119,7 @@ Optional — [graph-db-spike.md](./graph-db-spike.md#stretch-goals--search--comp
 
 ## Implementation notes
 
-- Map PFE `type` (node/edge) to IndraDB identifiers/properties per [specification.md](./specification.md). Spike may use a single vertex/edge type with a `type` property if simpler.
+- Map PFE `type` (node/edge) to IndraDB identifiers/properties per [specification.md](../specification.md). Spike may use a single vertex/edge type with a `type` property if simpler.
 - UUIDs: store as string property or native id mapping — document choice.
 - Subgraph: BFS from cluster via `member_of` + `depends_on` + `interfaces` within limits; implement in spike even if IndraDB query API is low-level.
 - Async: spike may be sync only; note if `spawn_blocking` will be required from axum handlers.
@@ -162,7 +162,7 @@ _How v1 will handle “problem already exists” without engine FTS._
 
 ### S6+ stretch results (optional)
 
-_See [graph-db-spike.md](./graph-db-spike.md#stretch-goals--search--compare-s6) — lexical / semantic / structural, sidecar recommendation._
+_See [program.md#stretch-goals--search--compare-s6](./program.md#stretch-goals--search--compare-s6) — lexical / semantic / structural, sidecar recommendation._
 
 ### Backup procedure
 
@@ -176,11 +176,11 @@ _Operator steps for `./.openpfe/graph/store/` copy._
 
 **Pass with caveats:** e.g. slow subgraph at 1k nodes but under acceptable ms; S6 explicitly deferred.
 
-**Fail:** Cannot reopen store, corrupts on crash, fails DAG/subgraph, audit blocker, or build cost prohibitive — reopen [graph-db-evaluation.md](./graph-db-evaluation.md).
+**Fail:** Cannot reopen store, corrupts on crash, fails DAG/subgraph, audit blocker, or build cost prohibitive — reopen [evaluation.md](./evaluation.md).
 
 ---
 
 ## Related
 
-- [graph-db-spike.md](./graph-db-spike.md)
-- [spike-grafeo.md](./spike-grafeo.md)
+- [program.md](./program.md)
+- [grafeo.md](./grafeo.md)

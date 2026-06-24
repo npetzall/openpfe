@@ -43,3 +43,9 @@ Exit code **0**. Transitive **`bincode` unmaintained** (RUSTSEC-2025-0141) via G
 ## cargo audit — 2026-05-24 (text-index feature)
 
 After adding `text-index` to `openpfe-graph-spike` manifest: exit **0**, same `bincode` allowed warning (260+ deps).
+
+## cargo audit — 2026-06-06
+
+Run after `grafeo@0.5.42` on product crate `openpfe-graph` (`lpg`, `text-index`, `vector-index`, `hybrid-search`, `parallel`).
+
+Exit code **0**. Same transitive **`bincode` unmaintained** (RUSTSEC-2025-0141) via Grafeo — accepted per `verdict.md` (not fixable in openpfe). **269** crate dependencies scanned.

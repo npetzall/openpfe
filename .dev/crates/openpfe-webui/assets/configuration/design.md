@@ -2,7 +2,7 @@
 
 **Primary question:** Which local LLM model is active, are weights installed, and are inference settings correct?
 
-**Scope (v1):** Project **`llm.json`** (catalog + `llm`), download into **shared** `~/.openpfe/models/`, active model, tuning. Server settings: **`server.json`** via `/server/config` (separate UI later).
+**Scope (v1):** Project **`llm.json`** (catalog + `llm`), download into **shared** `~/.openpfe/models/`, active model, tuning. **`server.json`** is **not** in the Web UI — IPC admin for CLI/TUI ([openpfe-ipc/specification.md](../../../openpfe-ipc/specification.md)).
 
 ## Backend
 

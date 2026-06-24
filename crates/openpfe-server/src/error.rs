@@ -1,6 +1,8 @@
 //! Server process errors.
 
+use openpfe_graph::GraphError;
 use openpfe_ipc::IpcError;
+use openpfe_llm::LlmError;
 
 /// Errors from lock acquisition, listeners, and shutdown.
 #[derive(Debug, thiserror::Error)]
@@ -19,4 +21,10 @@ pub enum ServerError {
 
     #[error("task join error: {0}")]
     Join(#[from] tokio::task::JoinError),
+
+    #[error("graph error: {0}")]
+    Graph(#[from] GraphError),
+
+    #[error("llm error: {0}")]
+    Llm(#[from] LlmError),
 }

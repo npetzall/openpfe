@@ -1,14 +1,16 @@
 # grafeo — lock-update
 
-Resolution preview: `.dev/scripts/dependency-lock-diff.sh grafeo@0.5.42 --package openpfe-graph-spike` (dry-run reported 0 new packages before member was in lock).
+Resolution preview: `.dev/scripts/dependency-lock-diff.sh grafeo@0.5.42 --package openpfe-graph` (product crate; features expanded from spike `lpg` only).
 
-Applied intake manifest:
+Applied product manifest (`crates/openpfe-graph/Cargo.toml`):
 
 ```toml
-grafeo = { version = "0.5.42", default-features = false, features = ["lpg"] }
+grafeo = { version = "0.5.42", default-features = false, features = [
+    "lpg", "text-index", "vector-index", "hybrid-search", "parallel",
+] }
 ```
 
-`cargo add grafeo@0.5.42 -p openpfe-graph-spike --no-default-features -F lpg` — **38 packages** added to `Cargo.lock`, including:
+Spike intake (`openpfe-graph-spike`, `lpg` only) — **38 packages** added to `Cargo.lock`, including:
 
 | Crate | Role |
 |-------|------|

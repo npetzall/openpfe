@@ -27,6 +27,6 @@ Embedded typed property graph for [plan 006](../../plans/006-spike-openpfe-graph
 
 ## Alternatives considered
 
-- **Grafeo** — macOS spike complete ([grafeo-outcome.md](../../crates/openpfe-graph/grafeo-outcome.md)); nanograph compares on S6 + schema model.
+- **Grafeo** — macOS spike complete ([spike/grafeo-outcome.md](../../crates/openpfe-graph/spike/grafeo-outcome.md)); nanograph compares on S6 + schema model.
 - **SparrowDB** — parallel shortlist spike.
 - **IndraDB** — rejected.

@@ -1,6 +1,6 @@
 # Spike: nanograph (embedded LPG)
 
-**Parent program:** [graph-db-spike.md](./graph-db-spike.md)
+**Parent program:** [program.md](./program.md)
 
 **Outcome summary:** [nanograph-outcome.md](./nanograph-outcome.md) — scenarios, use cases, findings, improvements.
 
@@ -122,7 +122,7 @@ nanograph meets **S1–S6** and **S6+ stretch** on macOS as an embedded folder-b
 4. **Linux** — not re-run on this branch.
 5. **Async** — `Database` is async (`tokio`); server will need `spawn_blocking` or async graph port.
 
-Full outcome: [nanograph-outcome.md](./nanograph-outcome.md). Compare with [grafeo-outcome.md](./grafeo-outcome.md) and SparrowDB spike before locking [specification.md](./specification.md).
+Full outcome: [nanograph-outcome.md](./nanograph-outcome.md). Compare with [grafeo-outcome.md](./grafeo-outcome.md) and SparrowDB spike before locking [specification.md](../specification.md).
 
 ### Schema friction (PFE JSON vs `.pg`)
 
@@ -200,6 +200,6 @@ Transitives include **lance**, **arrow-***, **datafusion**, **object_store** / *
 
 - [nanograph-outcome.md](./nanograph-outcome.md) — outcome summary
 - [006-spike-openpfe-graph-nanograph.md](../../plans/006-spike-openpfe-graph-nanograph.md) — execution plan
-- [spike-grafeo.md](./spike-grafeo.md)
-- [spike-sparrowdb.md](./spike-sparrowdb.md)
-- [graph-db-evaluation.md](./graph-db-evaluation.md)
+- [grafeo.md](./grafeo.md)
+- [sparrowdb.md](./sparrowdb.md)
+- [evaluation.md](./evaluation.md)

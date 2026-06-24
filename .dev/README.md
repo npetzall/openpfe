@@ -21,10 +21,10 @@ Design and planning for the Rust workspace. **Not** user-facing product docs (se
       requirements.md
       specification.md
     openpfe-graph/
-      graph-db-evaluation.md
-      graph-db-spike.md       # v1 spike program (shared bar)
-      spike-indradb.md
-      spike-grafeo.md
+      design.md | requirements.md | specification.md
+      decision.md             # locked engine (Grafeo)
+      grafeo/                 # Grafeo adapter (design, requirements, specification)
+      spike/                  # spike program, evaluation, per-engine plans & outcomes
 ```
 
 **Rule:** Normative design, requirements, and specs live under `crates/<name>/` only — see [workspace-crates.md#documentation-convention](./workspace-crates.md#documentation-convention).
@@ -42,6 +42,6 @@ Design and planning for the Rust workspace. **Not** user-facing product docs (se
 | What order should I implement crates? | [plans/README.md](./plans/README.md) |
 | Where do I document a crate change? | [workspace-crates.md#documentation-convention](./workspace-crates.md#documentation-convention) |
 | How do we add a crates.io dependency? | [dependencies/README.md](./dependencies/README.md) |
-| Which graph DB engine? | [crates/openpfe-graph/graph-db-evaluation.md](./crates/openpfe-graph/graph-db-evaluation.md) |
-| How do we spike graph engines for v1? | [crates/openpfe-graph/graph-db-spike.md](./crates/openpfe-graph/graph-db-spike.md) |
+| Which graph DB engine? | [crates/openpfe-graph/decision.md](./crates/openpfe-graph/decision.md) (locked: **Grafeo**); [evaluation](./crates/openpfe-graph/spike/evaluation.md) |
+| How do we spike graph engines for v1? | [crates/openpfe-graph/spike/program.md](./crates/openpfe-graph/spike/program.md) |
 | Detail for one crate | [crates/&lt;name&gt;/](./crates/) (`design`, `requirements`, `specification`) |

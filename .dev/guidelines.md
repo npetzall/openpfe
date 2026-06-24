@@ -8,9 +8,9 @@ How we implement **openpfe** consistently across the Rust workspace and embedded
 
 1. **Normative contracts live in crate docs.** APIs, envelopes, paths, and FRs are authoritative in `.dev/crates/<crate-name>/` (`design.md`, `requirements.md`, `specification.md`). Do not implement behavior that contradicts those files; if something is missing, extend the crate doc first or flag it explicitly.
 
-2. **Respect crate boundaries and dependency rules.** Follow [workspace-crates.md#dependency-rules-normative](./workspace-crates.md#dependency-rules-normative). Examples: `openpfe-ui` must not depend on `openpfe-mcp`; `openpfe-webui` stays embed-only; `openpfe-server` wires listeners and mounts routes — it does not own domain handlers.
+2. **Respect crate boundaries and dependency rules.** Follow [workspace-crates.md#dependency-rules-normative](./workspace-crates.md#dependency-rules-normative). Examples: `openpfe-ui` depends on `openpfe-mcp` only for `McpHandler` (debug HTTP transport); `openpfe-webui` stays embed-only; `openpfe-server` wires listeners and mounts routes — it does not own domain handlers.
 
-3. **One transport per audience (v1).** Humans (browser, TUI): **HTTP** `/api/v1/…` via `openpfe-ui` only. Agents (IDE): **IPC** `type: mcp` via `openpfe-mcp` only. CLI control: **IPC** `echo` / `shutdown`. Do not duplicate graph/config APIs on IPC for TUI or browser.
+3. **Transports vs handler (v1).** **`McpHandler`** (`openpfe-mcp`) is transport-agnostic. Humans: **HTTP** `/api/v1/…` via `openpfe-ui` (REST graph + **`llm.json`**; MCP via `POST /debug/mcp`). Agents (IDE): **IPC** `type: mcp` (stdio bridge). CLI / TUI control: **IPC** admin (`echo`, `shutdown`, **`server_config_get`** / **`server_config_put`**). Do not duplicate graph or **`llm.json`** on IPC. **`server.json`** is IPC admin only — not HTTP, not MCP.
 
 4. **Project scope is cwd.** **cwd = project root**; JSON config (`server.json`, `llm.json`), graph, and server runtime under `./.openpfe/`. Model **weights** under **`USER_HOME/.openpfe/models/`** (shared). **JSON** for config and API — no TOML. One server per project. HTTP base URL from IPC echo only.
 

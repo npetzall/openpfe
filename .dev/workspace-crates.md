@@ -8,15 +8,18 @@ Proposed **Cargo workspace** members for `openpfe`, with boundaries, dependencie
 |--------|---------|------|--------|
 | **CLI** (simple: `stop`, echo, spawn) | **IPC** | — | Control plane; MCP uses IPC via stdio bridge |
 | **Web UI** (browser) | **HTTP** | — | Static from `openpfe-webui`; data from `openpfe-ui` API |
-| **TUI** | **HTTP** | **IPC** (optional) | Same REST as Web UI for most work; IPC for trusted/local control when needed |
-| **IDE / agents** | **IPC** (MCP) | — | `openpfe-mcp` — parallel to `openpfe-ui`, not HTTP |
+| **TUI** | **HTTP** | **IPC** (admin) | HTTP: graph + `llm.json` (same as Web UI). IPC: `echo`, `shutdown`, **`server_config_*`** |
+| **IDE / agents** | **IPC** (MCP) | — | `openpfe-mcp` handler via `type: mcp` |
+| **Web UI Debug** | **HTTP** (MCP) | — | Same `McpHandler` via `POST /api/v1/debug/mcp` |
 
 **Symmetry:**
 
 | Audience | Crate | Transport |
 |----------|-------|-----------|
-| **Humans** (browser, TUI) | **`openpfe-ui`** | HTTP `/api/v1/…` |
-| **Agents** (Cursor, Claude, …) | **`openpfe-mcp`** | IPC (MCP envelopes) |
+| **Humans** (browser, TUI) | **`openpfe-ui`** | HTTP `/api/v1/…` (REST graph + LLM; MCP debug JSON-RPC) |
+| **Agents** (Cursor, Claude, …) | **`openpfe-mcp`** | IPC `type: mcp` (stdio bridge) |
+
+Both MCP transports call the same **`McpHandler`** instance in the server process.
 
 **`openpfe-webui`** is only the **embedded static front-end** (HTML/CSS/JS). It does not define the HTTP API — that is **`openpfe-ui`**.
 
@@ -28,8 +31,8 @@ Proposed **Cargo workspace** members for `openpfe`, with boundaries, dependencie
 |-----------|-------------|
 | **Thin binary** | `openpfe` — CLI, IPC client, MCP stdio bridge |
 | **Server wires, not rules** | `openpfe-server` — listeners, lock, mount `openpfe-ui` + `openpfe-webui` |
-| **Human API one place** | `openpfe-ui` — all HTTP handlers Web UI and TUI share |
-| **Agent API one place** | `openpfe-mcp` — MCP tools/resources |
+| **Human API one place** | `openpfe-ui` — HTTP handlers for graph + LLM + MCP debug transport (Web UI and TUI). **`server.json`** is IPC admin only |
+| **MCP semantics one place** | `openpfe-mcp` — `McpHandler`, tools/resources; wired to IPC (agents) and HTTP debug (browser) |
 | **Static assets only** | `openpfe-webui` — embed + MIME; no graph/config logic |
 | **Domain without I/O** | `openpfe-graph` (graph store only) |
 | **IPC without domain** | `openpfe-ipc` — frames + UDS only |
@@ -60,6 +63,7 @@ flowchart BT
   ui --> graph
   mcp --> graph
   ui --> llm
+  ui --> mcp
 ```
 
 | Crate | Type | Responsibility | Stays out of |
@@ -67,9 +71,9 @@ flowchart BT
 | **`openpfe`** | `bin` | CLI; IPC for control + MCP bridge; optional HTTP client later for rich CLI | HTTP route definitions; MCP tools; graph |
 | **`openpfe-server`** | `lib` | `pid` flock; UDS + HTTP; **`server.json`**; mount API + static; shutdown | Domain handlers (delegates to `openpfe-ui`, `openpfe-mcp`) |
 | **`openpfe-ipc`** | `lib` | Framing, envelope, UDS, echo/shutdown | Domain; MCP semantics; HTTP |
-| **`openpfe-ui`** | `lib` | **HTTP API for humans** — graph + JSON config routes; `AppState` from server | Static embed; IPC; MCP; owning config files |
+| **`openpfe-ui`** | `lib` | **HTTP API for humans** — graph + `llm.json` + MCP debug route; `AppState` (graph + LLM + `McpHandler`) from server | Static embed; IPC framing; MCP tool defs; `server.json`; owning config files |
 | **`openpfe-webui`** | `lib` | **Embedded browser UI** — `assets/` → bytes + content-type | API handlers; domain logic |
-| **`openpfe-mcp`** | `lib` | **MCP for agents** — tools/resources → graph | HTTP; static assets |
+| **`openpfe-mcp`** | `lib` | **`McpHandler`** — MCP tools/resources → graph; transport-agnostic | HTTP route impl; static assets; IPC framing |
 | **`openpfe-graph`** | `lib` | Embedded graph store | HTTP; IPC; MCP |
 | **`openpfe-llm`** | `lib` | `llm.json`, registry, downloads, inference | HTTP route impl in `openpfe-ui` |
 
@@ -86,13 +90,13 @@ flowchart BT
 | **HTTP handlers inside `openpfe-server`** | Reject — use `openpfe-ui` so server stays wiring-only. |
 | **TUI-only IPC for all data** | Reject — duplicate Web UI; HTTP primary, IPC for trusted extras. |
 | **`openpfe-core` (shared path helpers / domain types)** | **Reject** — paths documented in each owning crate; no shared helper API. |
-| **Merge `openpfe-graph` into a “core” crate** | Reject — keep **`openpfe-graph`** separate; engine **IndraDB + RocksDB** ([openpfe-graph/design.md](./crates/openpfe-graph/design.md)). |
+| **Merge `openpfe-graph` into a “core” crate** | Reject — keep **`openpfe-graph`** separate; engine **Grafeo** ([openpfe-graph/decision.md](./crates/openpfe-graph/decision.md)). |
 
 ---
 
 ## Dependency rules (normative)
 
-1. `openpfe-ui` → `graph`, `llm`; **not** on `openpfe-mcp`, `openpfe-webui`, `openpfe-server`.
+1. `openpfe-ui` → `graph`, `llm`, `mcp` (`McpHandler` for debug transport only); **not** on `openpfe-webui`, `openpfe-server`.
 2. `openpfe-mcp` → `graph`; **not** on `openpfe-ui` or `openpfe-llm`.
 3. `openpfe-webui` → minimal (embed only); **not** on `ui`, `graph`, `llm`.
 4. `openpfe-server` → `ipc`, `ui`, `webui`, `mcp`, `llm`; mounts routes from `ui` + static from `webui`.
@@ -131,7 +135,7 @@ Each workspace member has **`.dev/crates/<crate-name>/`** with three authoritati
 
 1. **Normative detail lives in the crate folder** — not duplicated at `.dev/` root.
 2. **Root `.dev/`** holds only system overview ([architcture.md](./architcture.md)), multi-crate contracts ([cross-cutting.md](./cross-cutting.md)), and workspace evaluation (this file).
-3. **Extra research or deep dives** sit next to the crate they belong to (e.g. [openpfe-graph/graph-db-evaluation.md](./crates/openpfe-graph/graph-db-evaluation.md)).
+3. **Extra research or deep dives** sit next to the crate they belong to (e.g. [openpfe-graph/decision.md](./crates/openpfe-graph/decision.md)).
 4. **Cross-crate FRs** — split by owning crate; product-wide traceability in [cross-cutting.md](./cross-cutting.md#fr-traceability).
 
 Folder index: [crates/README.md](./crates/README.md).
@@ -153,15 +157,15 @@ Folder index: [crates/README.md](./crates/README.md).
 | # | Decision | Recorded in |
 |---|----------|-------------|
 | 1 | **8 members** — including **`openpfe-llm`** in v1 (not deferred). | This file |
-| 2 | **`openpfe-ui`** = HTTP API for Web UI + TUI (like **`openpfe-mcp`** for agents). | This file |
+| 2 | **`openpfe-ui`** = HTTP API for Web UI + TUI; **`openpfe-mcp`** = shared `McpHandler` (IPC + HTTP debug). | This file |
 | 3 | **`openpfe-webui`** = embedded static browser assets (was `openpfe-embed`). | This file |
-| 4 | **CLI** → IPC for control; **Web/TUI** → HTTP for data. | [architcture.md](./architcture.md) |
+| 4 | **CLI/TUI** → IPC for control + **`server.json`**; **Web/TUI** → HTTP for graph + `llm.json`. | [architcture.md](./architcture.md) |
 | 5 | **`openpfe-server`** mounts `openpfe-ui` + `openpfe-webui`; does not own handler logic. | [openpfe-server/design.md](./crates/openpfe-server/design.md) |
 | 6 | **`openpfe-llm`** in v1 — `llama-cpp-2`, HTTP `/llm/*`, graph-only MCP. | [openpfe-llm/design.md](./crates/openpfe-llm/design.md), [openpfe-mcp/specification.md](./crates/openpfe-mcp/specification.md) |
 | 7 | **HTTP stack:** **axum** (handlers/router in `openpfe-ui`; server mounts). | [architcture.md](./architcture.md), [openpfe-ui/design.md](./crates/openpfe-ui/design.md) |
 | 8 | **Async runtime:** **tokio** workspace-wide for v1. | [architcture.md](./architcture.md), [openpfe-server](./crates/openpfe-server/), [openpfe-ipc](./crates/openpfe-ipc/) |
-| 9 | **`openpfe-graph`:** separate member; **IndraDB + RocksDB** at `./.openpfe/graph/store/`. | [openpfe-graph/design.md](./crates/openpfe-graph/design.md) |
-| 10 | **TUI:** graph/config/models via **HTTP only**; **IPC** for echo + shutdown (same admin envelopes as CLI). | [architcture.md](./architcture.md#tui-v1) |
+| 9 | **`openpfe-graph`:** separate member; **Grafeo** at `./.openpfe/graph/store/`. | [openpfe-graph/decision.md](./crates/openpfe-graph/decision.md) |
+| 10 | **TUI:** graph + `llm.json` via **HTTP**; **IPC** for echo, shutdown, **`server_config_*`** (admin). | [architcture.md](./architcture.md#tui-v1) |
 | 11 | **No `openpfe-core`** — project paths are normative in each crate’s docs, not a shared Rust helper module. | This file, [cross-cutting.md](./cross-cutting.md) |
 
 ---

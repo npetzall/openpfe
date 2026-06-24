@@ -13,6 +13,6 @@
 
 ## Follow-ups
 
-- Record **Fail** in [spike-indradb.md](../../crates/openpfe-graph/spike-indradb.md) and [graph-db-evaluation.md](../../crates/openpfe-graph/graph-db-evaluation.md).
+- Record **Fail** in [spike/indradb.md](../../crates/openpfe-graph/spike/indradb.md) and [spike/evaluation.md](../../crates/openpfe-graph/spike/evaluation.md).
 - Run engine spikes for **[Grafeo](https://github.com/GrafeoDB/grafeo)**, **[nanograph](https://github.com/nanograph/nanograph)**, and **[SparrowDB](https://github.com/ryaker/SparrowDB)** per updated evaluation doc.
 - Cancel [006-openpfe-graph-indradb-spike.md](../../plans/006-openpfe-graph-indradb-spike.md); add replacement plan(s) when a candidate is chosen.

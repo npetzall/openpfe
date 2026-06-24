@@ -14,7 +14,7 @@ Convention: [workspace-crates.md#documentation-convention](../workspace-crates.m
 | [openpfe-ui/](./openpfe-ui/) | `openpfe-ui` | HTTP API for humans (Web UI, TUI) |
 | [openpfe-webui/](./openpfe-webui/) | `openpfe-webui` | Embedded browser assets |
 | [openpfe-mcp/](./openpfe-mcp/) | `openpfe-mcp` | MCP for agents |
-| [openpfe-graph/](./openpfe-graph/) | `openpfe-graph` | Embedded graph store (+ [graph-db-evaluation.md](./openpfe-graph/graph-db-evaluation.md)) |
+| [openpfe-graph/](./openpfe-graph/) | `openpfe-graph` | Embedded graph store — **Grafeo** ([decision.md](./openpfe-graph/decision.md)) |
 | [openpfe-llm/](./openpfe-llm/) | `openpfe-llm` | `llm.json`, shared model store, llama.cpp (v1) |
 
 ## Each folder
@@ -22,3 +22,5 @@ Convention: [workspace-crates.md#documentation-convention](../workspace-crates.m
 - `design.md` — how the crate is built
 - `requirements.md` — what it must do
 - `specification.md` — APIs and formats it owns
+
+**`openpfe-graph`** also has `decision.md` (engine lock), [`grafeo/`](./openpfe-graph/grafeo/) (adapter details), and [`spike/`](./openpfe-graph/spike/) (spike evidence).

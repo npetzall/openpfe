@@ -2,7 +2,7 @@
 
 ## Need
 
-Embedded labeled property graph with **WAL-backed durability** for [plan 006](../../plans/006-spike-openpfe-graph-sparrowdb.md) — prove SparrowDB can back openpfe’s v1 problem graph (scenarios S1–S6) without RocksDB/C++. Compare against Grafeo and nanograph per [graph-db-evaluation.md](../../crates/openpfe-graph/graph-db-evaluation.md).
+Embedded labeled property graph with **WAL-backed durability** for [plan 006](../../plans/006-spike-openpfe-graph-sparrowdb.md) — prove SparrowDB can back openpfe’s v1 problem graph (scenarios S1–S6) without RocksDB/C++. Compare against Grafeo and nanograph per [spike/evaluation.md](../../crates/openpfe-graph/spike/evaluation.md).
 
 ## Scope
 
@@ -50,7 +50,7 @@ Workspace crates pulled via `sparrowdb` (no separate intake unless policy expand
 
 ## Alternatives considered
 
-- **Grafeo** — macOS spike pass with in-engine BM25; [spike-grafeo.md](../../crates/openpfe-graph/spike-grafeo.md).
+- **Grafeo** — macOS spike pass with in-engine BM25; [spike/grafeo.md](../../crates/openpfe-graph/spike/grafeo.md).
 - **nanograph** — parallel shortlist; stronger schema/search story, heavier Arrow/Lance stack.
-- **IndraDB + RocksDB** — rejected; [indradb-outcome.md](../../crates/openpfe-graph/indradb-outcome.md).
+- **IndraDB + RocksDB** — rejected; [spike/indradb-outcome.md](../../crates/openpfe-graph/spike/indradb-outcome.md).
 - **SQLite adjacency** — evaluation fallback if all engine spikes fail.

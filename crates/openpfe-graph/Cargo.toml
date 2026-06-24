@@ -6,3 +6,18 @@ repository.workspace = true
 publish.workspace = true
 
 [lib]
+
+[dependencies]
+grafeo = { version = "0.5.42", default-features = false, features = [
+    "lpg",
+    "text-index",
+    "vector-index",
+    "hybrid-search",
+    "parallel",
+] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+tempfile = "3"

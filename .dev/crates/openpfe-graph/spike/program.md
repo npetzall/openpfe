@@ -2,28 +2,28 @@
 
 **Read when:** proving an embedded engine can back `openpfe-graph` before phase 2 implementation merges.
 
-**Status:** Grafeo, nanograph, and SparrowDB **macOS complete** ([grafeo-outcome.md](./grafeo-outcome.md), [nanograph-outcome.md](./nanograph-outcome.md), [sparrowdb-outcome.md](./sparrowdb-outcome.md)); engine choice in [graph-db-evaluation.md](./graph-db-evaluation.md) is **provisional** until shortlist spikes are compared against this bar.
+**Status:** Shortlist spikes **macOS complete**; v1 engine **locked to Grafeo** (2026-05-25) — [decision.md](../decision.md). Outcomes: [grafeo-outcome.md](./grafeo-outcome.md), [nanograph-outcome.md](./nanograph-outcome.md), [sparrowdb-outcome.md](./sparrowdb-outcome.md).
 
 ## Purpose
 
 The evaluation doc records constraints and an engine **shortlist**. Each spike validates candidates against **real PFE workloads**, not only “embedded + thousands of nodes.”
 
-Each engine spike is a **time-boxed experiment** (throwaway crate or short-lived branch). Outcome: update [graph-db-evaluation.md](./graph-db-evaluation.md) with pass/fail, measurements, and the engine decision for v1.
+Each engine spike is a **time-boxed experiment** (throwaway crate or short-lived branch). Outcome: update [evaluation.md](./evaluation.md) with pass/fail, measurements, and the engine decision for v1.
 
 | Engine spike | Document |
 |--------------|----------|
-| Grafeo (embedded LPG) | [spike-grafeo.md](./spike-grafeo.md) — [outcome](./grafeo-outcome.md) |
-| nanograph (on-device LPG) | [spike-nanograph.md](./spike-nanograph.md) — [outcome](./nanograph-outcome.md) |
-| SparrowDB (embedded LPG + WAL) | [spike-sparrowdb.md](./spike-sparrowdb.md) — [outcome](./sparrowdb-outcome.md) |
-| ~~IndraDB 5.x + RocksDB~~ | [spike-indradb.md](./spike-indradb.md) — **closed (Fail)** |
+| Grafeo (embedded LPG) | [grafeo.md](./grafeo.md) — [outcome](./grafeo-outcome.md) |
+| nanograph (on-device LPG) | [nanograph.md](./nanograph.md) — [outcome](./nanograph-outcome.md) |
+| SparrowDB (embedded LPG + WAL) | [sparrowdb.md](./sparrowdb.md) — [outcome](./sparrowdb-outcome.md) |
+| ~~IndraDB 5.x + RocksDB~~ | [indradb.md](./indradb.md) — **closed (Fail)** |
 
-Run **each shortlist** spike on **macOS and Linux** before locking `specification.md` engine dependency lines.
+Linux re-run for shortlist engines **deferred** (team). Engine dependency lines locked in [specification.md](../specification.md) per [decision.md](../decision.md).
 
 ---
 
 ## v1 workload scenarios (what we test)
 
-Normative schema and limits: [specification.md](./specification.md). MCP/UI surfaces: [openpfe-mcp/specification.md](../openpfe-mcp/specification.md), [openpfe-ui/specification.md](../openpfe-ui/specification.md).
+Normative schema and limits: [specification.md](../specification.md). MCP/UI surfaces: [openpfe-mcp/specification.md](../openpfe-mcp/specification.md), [openpfe-ui/specification.md](../openpfe-ui/specification.md).
 
 | ID | Scenario | v1 spike? | What “pass” means |
 |----|----------|-----------|-------------------|
@@ -33,17 +33,17 @@ Normative schema and limits: [specification.md](./specification.md). MCP/UI surf
 | **S4** | **MCP work area** — bounded `subgraph(cluster_id)` for context shield | **Required** | Default `max_depth=3`, `max_nodes=200`; hard stop before 500 nodes; no full-graph scan API used |
 | **S5** | **DAG validation** — `depends_on` must be acyclic | **Required** | Detect injected cycle; return cycle path(s) suitable for UI/MCP |
 | **S6** | **Similar / existing problem** — “is this already recorded?” (lexical) | **Required** for engines with text index; document workaround if absent | BM25 or documented text index returns relevant hits on fixture; otherwise document acceptable v1 workaround (e.g. scan `list_nodes` on small fixture) |
-| **S6+** | **Search & compare (stretch)** — ranked candidates, semantic/structural signals | **Stretch** — see below | Not required to pass engine spike; results inform v1 vs phase 2 and Grafeo vs sidecar index |
+| **S6+** | **Search & compare** — ranked candidates, semantic/structural signals | **Required (v1 product)** | Merged `find_similar` with `match_kinds`; normative in [specification.md](../specification.md#search-and-similarity-v1) |
 
 **Out of spike scope (v1 product, later work):** exposing Cypher/GQL on HTTP/MCP; LLM drill-down write tools (`openpfe_suggest_subproblems`); multi-process writers; export/import; full-text on entire repo (non-graph sources).
 
 ---
 
-## Stretch goals — search & compare (S6+)
+## Search & compare (S6+) — v1 product
 
-**Product intent (from exploration):** During drill-down or manual entry, the agent or user should discover whether a **problem is already in the project graph** before creating a duplicate — same title, same intent (different wording), or same structural role (cluster + dependencies).
+**Product intent:** During drill-down or manual entry, the agent or user should discover whether a **problem is already in the project graph** before creating a duplicate — same title, same intent (different wording), or same structural role (cluster + dependencies).
 
-Stretch work is **optional** in the engine spike time box. Run when S1–S5 (and baseline S6) are done; record outcomes in engine spike **Results** under an **S6+** subsection.
+**Status:** Promoted to **v1** — normative API in [specification.md](../specification.md#search-and-similarity-v1), implemented in `crates/openpfe-graph`. This section remains the **acceptance fixture and checklist** used by integration tests.
 
 ### Agent / MCP workflow (target)
 
@@ -97,7 +97,7 @@ Extend [§ C. PFE seed fixture](#c-pfe-seed-fixture-all-spikes) when running S6+
 | Semantic only viable with heavy deps | Defer semantic to phase 2; ship lexical dedup first |
 | Structural requires custom Rust over neighbors | Expected for any engine; not a differentiator |
 
-Stretch goals do **not** block v1 if baseline **S6** (lexical only) or documented workaround passes — they guide whether “find existing problem” ships in v1 or phase 2.
+MCP/UI tool exposure may still be phased; **store behavior** for S6+ is v1-normative per [requirements.md](../requirements.md) (FR-9.6, FR-9.7).
 
 ---
 
@@ -125,7 +125,7 @@ Implement the same minimal surface in the spike (trait prototype or inline funct
 | `subgraph(cluster_id, limits)` | S4 |
 | `validate_acyclic_deps()` | S5 |
 
-Spike code does **not** need to match final public API signatures; behavior must match [design.md](./design.md) intent.
+Spike code does **not** need to match final public API signatures; behavior must match [design.md](../design.md) intent.
 
 ### C. PFE seed fixture (all spikes)
 
@@ -181,10 +181,10 @@ Numbers need not be benchmark-grade; they must be **reproducible** (command + co
 ## Spike execution (suggested)
 
 1. Create `crates/openpfe-graph-spike/` (or `examples/graph-spike-<engine>/`) — **not** merged as product crate unless promoted.
-2. Pin engine per [spike-indradb.md](./spike-indradb.md) / [spike-grafeo.md](./spike-grafeo.md).
+2. Pin engine per [indradb.md](./indradb.md) / [grafeo.md](./grafeo.md).
 3. Implement shared fixture + operation checklist.
 4. Fill engine doc **Results** section; set **Recommendation**: Pass / Fail / Pass with caveats.
-5. Update [graph-db-evaluation.md](./graph-db-evaluation.md) decision table and [specification.md](./specification.md) engine lines if the winner changes.
+5. Update [evaluation.md](./evaluation.md) decision table and [specification.md](../specification.md) engine lines if the winner changes.
 
 **Time box:** 1–2 days per engine including both platforms.
 
@@ -192,18 +192,19 @@ Numbers need not be benchmark-grade; they must be **reproducible** (command + co
 
 ## Decision after spikes
 
+**Locked (2026-05-25):** **[Grafeo](https://github.com/GrafeoDB/grafeo)** — see [decision.md](../decision.md). All three shortlist engines passed on macOS with caveats; Grafeo chosen for LPG + in-engine BM25 + Rust adapter fit.
+
 | Outcome | Action |
 |---------|--------|
-| One shortlist engine pass, others fail or “caveats too heavy” | Lock winner; record S6/S6+ caveats in evaluation |
-| Multiple pass | Compare S6, build/audit, latency, ops per [graph-db-evaluation.md](./graph-db-evaluation.md); prefer engine-native search if S6 is committed for v1 |
-| All fail | Reopen evaluation — SQLite + FTS, or custom `redb`/LMDB layer per [graph-db-evaluation.md](./graph-db-evaluation.md) |
-| Pass with caveats | Record caveats in evaluation; default to simpler engine unless S6 is committed for first release |
-| **S6+ stretch** favors one engine | Note in evaluation; product may still ship lexical-only in v1 if stretch semantic deps too heavy |
+| **Grafeo selected** | Phase 2 `openpfe-graph` implementation; product Grafeo intake; caveats in [grafeo-outcome.md](./grafeo-outcome.md) |
+| nanograph / SparrowDB not selected | Outcomes retained for comparison — no product dependency |
+| IndraDB | Rejected — [indradb-outcome.md](./indradb-outcome.md) |
 
 ---
 
 ## Related
 
-- [graph-db-evaluation.md](./graph-db-evaluation.md) — candidates and provisional decision
-- [design.md](./design.md) — `GraphStore` trait target
-- [plans/openpfe-graph.md](../../plans/openpfe-graph.md) — phase 2 implementation plan
+- [decision.md](../decision.md) — **locked engine**
+- [evaluation.md](./evaluation.md) — candidates and evaluation record
+- [design.md](../design.md) — `GraphStore` trait target
+- [plans/007-openpfe-graph.md](../../plans/007-openpfe-graph.md) — phase 2 implementation plan

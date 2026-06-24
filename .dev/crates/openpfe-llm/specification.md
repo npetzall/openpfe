@@ -117,19 +117,100 @@ pub trait LlmService: Send + Sync {
 
 ## HTTP exposure (v1)
 
-Mounted by **`openpfe-ui`**; handlers call **`LlmService`**.
+Mounted by **`openpfe-ui`**; handlers call **`LlmService`**. JSON bodies below are normative DTO mirrors of crate types (`serde_json`).
 
 | Method | Path | Purpose |
 |--------|------|---------|
-| `GET` | `/llm/config` | Full `llm.json` document |
-| `PUT` | `/llm/config` | Replace document; reload when needed |
-| `GET` | `/models` | Catalog + `installed` per id |
-| `GET` | `/models/:id` | Manifest + paths if installed |
-| `POST` | `/models/:id/download` | `{ "job_id" }` |
-| `GET` | `/models/downloads/:job_id` | Poll progress |
-| `PUT` | `/llm/active` | `{ "model": "<id>" }` → update `llm.model`; reload if installed |
-| `GET` | `/llm/status` | Engine status |
-| `POST` | `/llm/complete` | Completion |
+| `GET` | `/llm/config` | Full `llm.json` document (`LlmFile`) |
+| `PUT` | `/llm/config` | Replace `LlmFile`; call `reload_engine` when [reload triggers](#reload_engine-triggers) apply |
+| `GET` | `/models` | `{ "models": [ ModelEntry … ] }` |
+| `GET` | `/models/:id` | `ModelEntry` (manifest + `installed` when present) |
+| `POST` | `/models/:id/download` | `{ "job_id": "<uuid>" }` |
+| `GET` | `/models/downloads/:job_id` | `DownloadStatus` |
+| `PUT` | `/llm/active` | Request `{ "model": "<id>" }` → response `{ "model": "<id>" }`; `set_active_model` + `reload_engine` when installed |
+| `GET` | `/llm/status` | `LlmStatus` |
+| `POST` | `/llm/complete` | See [completion](#post-llmcomplete) |
+
+### `POST /llm/complete`
+
+Request:
+
+```json
+{
+  "prompt": "string (required)",
+  "temperature": 0.7,
+  "max_tokens": 1024
+}
+```
+
+`temperature` / `max_tokens` optional — default from `llm.json` `llm` object when omitted.
+
+Response:
+
+```json
+{ "text": "generated string" }
+```
+
+Errors: `409` or mapped client error when `LlmError::Busy` (single-flight).
+
+### `GET /llm/status` — `LlmStatus`
+
+```json
+{
+  "loaded": true,
+  "model_id": "llama-3.2-3b-instruct",
+  "busy": false,
+  "error": null
+}
+```
+
+| Field | Type | Meaning |
+|-------|------|---------|
+| `loaded` | bool | Active model GGUF loaded in engine |
+| `model_id` | string? | Active catalog id from `llm.model` |
+| `busy` | bool | Inference in progress |
+| `error` | string? | Last load/engine error (process still runs — FR-8.7) |
+
+### `GET /models` — `ModelEntry`
+
+```json
+{
+  "models": [
+    {
+      "id": "llama-3.2-3b-instruct",
+      "filename": "llama-3.2-3b-instruct-q4_k_m.gguf",
+      "url": "https://example.com/…",
+      "sha256": "<hex>",
+      "path": null,
+      "installed": true,
+      "manifest": { "id": "…", "filename": "…", "sha256": "…", "url": "…", "installed_at": "…" }
+    }
+  ]
+}
+```
+
+### `GET /models/downloads/:job_id` — `DownloadStatus`
+
+Tagged union (`state` field):
+
+| `state` | Body fields |
+|---------|-------------|
+| `queued` | — |
+| `running` | `bytes_received` (u64) |
+| `complete` | — |
+| `failed` | `message` (string) |
+
+### `reload_engine` triggers
+
+| Change | `reload_engine`? |
+|--------|------------------|
+| `llm.model` (active id) | **Yes** — when target weights installed |
+| `llm.n_ctx` | **Yes** |
+| `llm.n_threads` | **Yes** |
+| `llm.temperature` | No — persist only; used on next `complete` |
+| `llm.max_tokens` | No — persist only |
+| Download of active id completes | **Yes** — HTTP layer polls `complete` then calls `reload_engine` |
+| `catalog[]` edits (no load-field change) | No |
 
 Web UI: [openpfe-webui/assets/configuration/specification.md](../openpfe-webui/assets/configuration/specification.md).
 

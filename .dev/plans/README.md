@@ -15,8 +15,14 @@ Follow [workspace-crates.md#phasing](../workspace-crates.md#phasing).
 | **003** | [003-openpfe-ipc-impl.md](./003-openpfe-ipc-impl.md) | 1 | `openpfe-ipc` — traits + wire API (aligns with 002 ports) |
 | **004** | [004-openpfe-server-impl.md](./004-openpfe-server-impl.md) | 1 | `openpfe-server` — phase 1 minimal server (no port pattern) |
 | **005** | [005-openpfe-wiring.md](./005-openpfe-wiring.md) | 1 | Path deps, real adapters, integration tests, e2e |
-| — | *(per-crate plans TBD)* | 2 | `openpfe-graph`, `openpfe-webui`, `openpfe-ui` |
-| — | *(per-crate plans TBD)* | 3 | `openpfe-mcp`, `openpfe-llm` |
+| **007** | [007-openpfe-graph.md](./007-openpfe-graph.md) | 2 | `openpfe-graph` — Grafeo adapter, S6/S6+, integration tests |
+| **008** | [008-intake.md](./008-intake.md) | 2–3 | LLM slice — external deps (`llama-cpp-2`, `reqwest`, `sha2`, `uuid`) |
+| **008** | [008-openpfe-llm.md](./008-openpfe-llm.md) | 2–3 | `openpfe-llm` — `llm.json`, registry, download, inference |
+| **008** | [008-openpfe-mcp.md](./008-openpfe-mcp.md) | 2–3 | `openpfe-mcp` — stub `McpHandler` for `AppState` |
+| **008** | [008-openpfe-ui.md](./008-openpfe-ui.md) | 2–3 | `openpfe-ui` — LLM HTTP routes + `AppState` |
+| **008** | [008-openpfe-server.md](./008-openpfe-server.md) | 2–3 | `openpfe-server` — mount API, graph + LLM wiring |
+| — | *(per-crate plans TBD)* | 2 | `openpfe-webui`; `openpfe-ui` graph routes |
+| — | *(per-crate plans TBD)* | 3 | `openpfe-mcp` full graph tools |
 
 **Phase 1 flow:** **002** and **003** in parallel (ports contract in 002 drives 003); **004** after **003**; finish with **005** wiring (no new external deps).
 

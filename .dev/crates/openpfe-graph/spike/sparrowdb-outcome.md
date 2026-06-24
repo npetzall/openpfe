@@ -1,9 +1,9 @@
 # SparrowDB spike — outcome summary
 
-**Read when:** deciding engine choice after [plan 006](../../plans/006-spike-openpfe-graph-sparrowdb.md); comparing to [grafeo-outcome.md](./grafeo-outcome.md) and [spike-nanograph.md](./spike-nanograph.md).
+**Read when:** reviewing SparrowDB spike evidence. **Not selected for v1** — engine locked to **Grafeo** ([decision.md](../decision.md)).
 
 **Implementation:** `crates/openpfe-graph-spike/` (throwaway; not product `openpfe-graph`).  
-**Detailed checklist / measurements:** [spike-sparrowdb.md](./spike-sparrowdb.md).  
+**Detailed checklist / measurements:** [sparrowdb.md](./sparrowdb.md).  
 **Intake:** [.dev/dependencies/sparrowdb/](../../dependencies/sparrowdb/).
 
 | Field | Value |
@@ -16,7 +16,7 @@
 | **Features used** | Default `sparrowdb` crate graph; Cypher via `GraphDb::execute`; `WriteTx` for fulltext index maintenance |
 | **Features explicitly not used** | `sparrowdb-server`, `sparrowdb-cli`, `sparrowdb-mcp`, Bolt/HTTP, encrypted open |
 | **Recommendation** | **Pass with caveats** — viable for v1 graph + WAL durability; weaker S6 and adapter ergonomics than Grafeo |
-| **vs Grafeo** | **Inconclusive** — prefer Grafeo for in-engine BM25 and faster bounded reads unless durability narrative wins |
+| **vs Grafeo** | **Not selected** — Grafeo locked for in-engine BM25 and adapter ergonomics |
 
 ---
 
@@ -61,7 +61,7 @@ See [README](../../../crates/openpfe-graph-spike/README.md).
 
 ## Scenarios tested
 
-Normative definitions: [graph-db-spike.md](./graph-db-spike.md). Tests: `crates/openpfe-graph-spike/tests/sparrowdb_spike.rs`, `sparrowdb_spike_s6plus.rs`.
+Normative definitions: [program.md](./program.md). Tests: `crates/openpfe-graph-spike/tests/sparrowdb_spike.rs`, `sparrowdb_spike_s6plus.rs`.
 
 | ID | Product scenario | Spike test(s) | Result (macOS) |
 |----|------------------|---------------|----------------|
@@ -107,7 +107,7 @@ Normative definitions: [graph-db-spike.md](./graph-db-spike.md). Tests: `crates/
 
 ## Use cases enabled by SparrowDB (via spike adapter)
 
-Prototype API: `PfeGraphStore` in `crates/openpfe-graph-spike/src/store.rs`. Maps to target [design.md](./design.md) `GraphStore` and product surfaces in [openpfe-ui/specification.md](../openpfe-ui/specification.md), [openpfe-mcp/specification.md](../openpfe-mcp/specification.md).
+Prototype API: `PfeGraphStore` in `crates/openpfe-graph-spike/src/store.rs`. Maps to target [design.md](../design.md) `GraphStore` and product surfaces in [openpfe-ui/specification.md](../openpfe-ui/specification.md), [openpfe-mcp/specification.md](../openpfe-mcp/specification.md).
 
 | Use case | Product need | Spike API / SparrowDB capability |
 |----------|--------------|----------------------------------|
@@ -227,19 +227,18 @@ Prioritized for follow-up spike or product phase 2 — not required to close pla
 
 | Outcome | Action |
 |---------|--------|
-| SparrowDB pass + Grafeo pass | Compare S6, subgraph latency, ops, durability needs — see [graph-db-spike.md § Decision after spikes](./graph-db-spike.md#decision-after-spikes) |
-| Prefer SparrowDB | Only if **WAL / pure-Rust** outweighs Grafeo S6 + read performance; phase 2 plan must budget adapter rewrite |
-| Prefer Grafeo | Default shortlist leader for LPG + search; keep SparrowDB learnings for durability comparison doc |
-| Either engine | Structural `find_similar` leg stays custom Rust; MCP tool not engine-native |
+| **Not selected (2026-05-25)** | [decision.md](../decision.md) — Grafeo chosen for v1 |
+| Retained value | WAL / pure-Rust durability notes for ops comparison only |
+| Product | Structural `find_similar` leg stays custom Rust in Grafeo adapter |
 
 ---
 
 ## Related documents
 
 - [plan 006](../../plans/006-spike-openpfe-graph-sparrowdb.md)
-- [spike-sparrowdb.md](./spike-sparrowdb.md)
-- [graph-db-spike.md](./graph-db-spike.md)
-- [graph-db-evaluation.md](./graph-db-evaluation.md)
+- [sparrowdb.md](./sparrowdb.md)
+- [program.md](./program.md)
+- [evaluation.md](./evaluation.md)
+- [decision.md](../decision.md) — locked engine (Grafeo)
 - [grafeo-outcome.md](./grafeo-outcome.md)
-- [spike-grafeo.md](./spike-grafeo.md)
-- [spike-nanograph.md](./spike-nanograph.md)
+- [nanograph.md](./nanograph.md), [nanograph-outcome.md](./nanograph-outcome.md)

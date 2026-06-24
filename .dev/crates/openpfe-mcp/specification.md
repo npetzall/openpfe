@@ -2,9 +2,16 @@
 
 ## Transport
 
-- Server-side handler over IPC `type: mcp` — [openpfe-ipc/specification.md](../openpfe-ipc/specification.md)
-- Host attachment: `openpfe mcp` stdio per [Model Context Protocol](https://modelcontextprotocol.io/)
-- **v1:** request/response JSON-RPC only (no streaming notifications)
+`McpHandler` is **transport-agnostic**. **`openpfe-server`** constructs one shared instance and attaches:
+
+| Transport | Client | Wire |
+|-----------|--------|------|
+| **IPC** | IDE agent (`openpfe mcp` stdio bridge) | `type: mcp` envelope `payload` — [openpfe-ipc/specification.md](../openpfe-ipc/specification.md) |
+| **HTTP** | Web UI Debug panel (browser) | `POST /api/v1/debug/mcp` — [openpfe-ui/specification.md](../openpfe-ui/specification.md#mcp-debug-json-rpc) |
+
+- Host attachment (agents): `openpfe mcp` stdio per [Model Context Protocol](https://modelcontextprotocol.io/)
+- **v1:** request/response JSON-RPC only (no streaming notifications) on both transports
+- **Out of scope for MCP:** **`server.json`**, **`llm.json`**, and IPC admin envelopes — graph tools only; humans use REST graph/LLM routes or this MCP debug HTTP bridge per [guidelines/protocols.md](../../guidelines/protocols.md)
 
 ## MCP tools (v1)
 

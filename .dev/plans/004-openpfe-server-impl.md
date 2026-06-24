@@ -21,7 +21,7 @@
 ## Prerequisites
 
 - [x] [001-scaffolding.md](./001-scaffolding.md) complete (path deps to `openpfe-ipc`, `openpfe-ui`, etc. already declared; unused in this slice).
-- [ ] [003-openpfe-ipc-impl.md](./003-openpfe-ipc-impl.md) **Complete** — `IpcClient`, `IpcListener`, `RequestHandler` available.
+- [x] [003-openpfe-ipc-impl.md](./003-openpfe-ipc-impl.md) **Complete** — `IpcClient`, `IpcListener`, `RequestHandler` available.
 
 **Not required before starting intake:** 005 — binary adapters land in wiring plan.
 
@@ -29,13 +29,13 @@
 
 New or changed **external** deps for `openpfe-server`. Follow [guidelines/plans.md](../guidelines/plans.md#dependency-intake-gate-required). Reuse workspace crates already accepted in 002/003 where possible.
 
-- [ ] `.dev/dependencies/axum/rational.md` (+ `lock-update.md`, `scan.md`, `verdict.md`) — HTTP stub router
-- [ ] `.dev/dependencies/fd-lock/rational.md` (+ …) — `pid` exclusive flock
-- [ ] Reuse / extend **tokio** ([tokio/rational.md](../dependencies/tokio/rational.md)): server features (`net`, `signal`, `rt-multi-thread`, … as needed); update rational / verdict if feature set changes
-- [ ] Reuse **serde** / **serde_json** if already accepted for 003; otherwise complete `serde` intake here
-- [ ] `.dev/dependencies/thiserror/rational.md` (+ …) — `ServerError` (skip if accepted in 003 and shared via workspace)
-- [ ] `crates/openpfe-server/Cargo.toml` + root `[workspace.dependencies]` updated; **`cargo audit`** immediately after manifest edit
-- [ ] **Human intake approval** ([guidelines/plans.md#pause-checkpoint-manual-inspection](../guidelines/plans.md#pause-checkpoint-manual-inspection))
+- [x] `.dev/dependencies/axum/rational.md` (+ `lock-update.md`, `scan.md`, `verdict.md`) — HTTP stub router
+- [x] `.dev/dependencies/fd-lock/rational.md` (+ …) — `pid` exclusive flock
+- [x] Reuse / extend **tokio** ([tokio/rational.md](../dependencies/tokio/rational.md)): server features (`net`, `signal`, `rt-multi-thread`, … as needed); update rational / verdict if feature set changes
+- [x] Reuse **serde** / **serde_json** if already accepted for 003; otherwise complete `serde` intake here
+- [x] `.dev/dependencies/thiserror/rational.md` (+ …) — `ServerError` (skip if accepted in 003 and shared via workspace)
+- [x] `crates/openpfe-server/Cargo.toml` + root `[workspace.dependencies]` updated; **`cargo audit`** immediately after manifest edit
+- [x] **Human intake approval** ([guidelines/plans.md#pause-checkpoint-manual-inspection](../guidelines/plans.md#pause-checkpoint-manual-inspection))
 
 **Do not start tasks in “Implementation” until the human intake approval box is checked.**
 
@@ -63,38 +63,38 @@ pub async fn run_server_with_opts(opts: ServerOptions) -> Result<(), ServerError
 
 #### 1. Layout and errors
 
-- [ ] `error.rs` — `ServerError` (`thiserror`)
-- [ ] `options.rs` — `ServerOptions` (`foreground`, `shutdown_timeout`)
-- [ ] `lib.rs` — export `run_server`, `run_server_with_opts`
+- [x] `error.rs` — `ServerError` (`thiserror`)
+- [x] `options.rs` — `ServerOptions` (`foreground`, `shutdown_timeout`)
+- [x] `lib.rs` — export `run_server`, `run_server_with_opts`
 
 #### 2. Runtime directory and lock
 
-- [ ] `lock.rs` — ensure `./.openpfe/server/`; `fd-lock` on `pid`; write ASCII PID; hold for process lifetime
-- [ ] `runtime.rs` — stale `socket` probe via `openpfe_ipc::IpcClient::echo`; unlink if dead; coordinate paths with [specification](../crates/openpfe-server/specification.md)
+- [x] `lock.rs` — ensure `./.openpfe/server/`; `fd-lock` on `pid`; write ASCII PID; hold for process lifetime
+- [x] `runtime.rs` — stale `socket` probe via `openpfe_ipc::IpcClient::echo`; unlink if dead; coordinate paths with [specification](../crates/openpfe-server/specification.md)
 
 #### 3. Listeners and dispatch
 
-- [ ] `ipc_dispatch.rs` — `IpcListener::serve` + `RequestHandler`: echo (`ok`, `http_base_url`), shutdown, mcp → JSON-RPC not-implemented stub
-- [ ] `http_stub.rs` — `127.0.0.1:0` axum `GET /` OK; store `http_base_url` for echo payload
+- [x] `ipc_dispatch.rs` — `IpcListener::serve` + `RequestHandler`: echo (`ok`, `http_base_url`), shutdown, mcp → JSON-RPC not-implemented stub
+- [x] `http_stub.rs` — `127.0.0.1:0` axum `GET /` OK; store `http_base_url` for echo payload
 
 #### 4. Lifecycle
 
-- [ ] `run_server` / `run_server_with_opts` — acquire lock → bind socket + HTTP → serve until shutdown → stop accept → drain (~timeout) → remove `pid` + `socket`
-- [ ] SIGINT/SIGTERM → same shutdown path as IPC shutdown (best effort in v1 slice)
+- [x] `run_server` / `run_server_with_opts` — acquire lock → bind socket + HTTP → serve until shutdown → stop accept → drain (~timeout) → remove `pid` + `socket`
+- [x] SIGINT/SIGTERM → same shutdown path as IPC shutdown (best effort in v1 slice)
 
 #### 5. Tests
 
-- [ ] Integration test: temp cwd, `run_server` in background task, `IpcClient::echo` → `http://127.0.0.1:…` in `http_base_url`
+- [x] Integration test: temp cwd, `run_server` in background task, `IpcClient::echo` → `http://127.0.0.1:…` in `http_base_url`
 
 ## Acceptance criteria
 
-- [ ] All implementation task boxes above are `[x]`
-- [ ] [003-openpfe-ipc-impl.md](./003-openpfe-ipc-impl.md) acceptance criteria met (dependency)
-- [ ] `cargo test -p openpfe-server` passes (including echo integration test)
-- [ ] `cargo clippy -p openpfe-server -- -D warnings` clean (or documented in `verdict.md`)
-- [ ] `run_server*` callable from `openpfe --server` after [005](./005-openpfe-wiring.md)
-- [ ] Echo returns live `http_base_url` matching bound HTTP stub
-- [ ] Intake artifacts present; audit clean or documented in `verdict.md`
+- [x] All implementation task boxes above are `[x]`
+- [x] [003-openpfe-ipc-impl.md](./003-openpfe-ipc-impl.md) acceptance criteria met (dependency)
+- [x] `cargo test -p openpfe-server` passes (including echo integration test)
+- [x] `cargo clippy -p openpfe-server -- -D warnings` clean (or documented in `verdict.md`)
+- [x] `run_server*` callable from `openpfe --server` after [005](./005-openpfe-wiring.md)
+- [x] Echo returns live `http_base_url` matching bound HTTP stub
+- [x] Intake artifacts present; audit clean or documented in `verdict.md`
 
 ## Out of scope
 

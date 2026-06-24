@@ -1,9 +1,9 @@
 # Grafeo spike — outcome summary
 
-**Read when:** deciding engine choice after [plan 006](../../plans/006-spike-openpfe-graph-grafeo.md); comparing to [spike-indradb.md](./spike-indradb.md).
+**Read when:** implementing Grafeo in `openpfe-graph` or reviewing spike evidence. **v1 engine locked (2026-05-25)** — [decision.md](../decision.md).
 
-**Implementation:** `crates/openpfe-graph-spike/` (throwaway; not product `openpfe-graph`).  
-**Detailed checklist / measurements:** [spike-grafeo.md](./spike-grafeo.md).  
+**Implementation:** `crates/openpfe-graph/` (`GrafeoGraphStore`); spike history in branch `spike_db_grafeao`.  
+**Detailed checklist / measurements:** [grafeo.md](./grafeo.md).  
 **Intake:** [.dev/dependencies/grafeo/](../../dependencies/grafeo/).
 
 | Field | Value |
@@ -12,10 +12,10 @@
 | **Platform tested** | macOS (Darwin 25.3, arm64) |
 | **Linux** | Skipped (team decision) |
 | **Grafeo version** | `0.5.42` |
-| **Features enabled** | `lpg`, `text-index` |
-| **Features explicitly not enabled** | `embedded`, `ai`, `vector-index`, `hybrid-search`, `embed`, `rdf`, `enterprise`, `server`, `grafeo-mcp` |
-| **Recommendation** | **Pass with caveats** — viable for v1 graph + in-engine lexical search; await IndraDB spike before locking engine |
-| **vs IndraDB** | **Inconclusive** until [spike-indradb.md](./spike-indradb.md) completes |
+| **Features enabled (v1 product)** | `lpg`, `text-index`, `vector-index`, `hybrid-search`, `parallel` |
+| **Features explicitly not enabled** | `embedded`, `ai`, `embed`, `rdf`, `enterprise`, `server`, `grafeo-mcp` |
+| **Recommendation** | **Pass with caveats** — **selected** for v1 ([decision.md](../decision.md)) |
+| **vs shortlist** | **Selected** over nanograph and SparrowDB; IndraDB **rejected** |
 
 ---
 
@@ -54,7 +54,7 @@ Grafeo meets the **required** spike bar (S1–S6) on macOS as an **embedded LPG*
 
 ## Scenarios tested
 
-Normative definitions: [graph-db-spike.md](./graph-db-spike.md). Tests: `crates/openpfe-graph-spike/tests/grafeo_spike.rs`, `grafeo_spike_s6plus.rs`.
+Normative definitions: [program.md](./program.md), [specification.md](../specification.md#search-and-similarity-v1). Tests: `crates/openpfe-graph/tests/grafeo_integration.rs`, `grafeo_s6plus.rs` (spike history: `openpfe-graph-spike`).
 
 | ID | Product scenario | Spike test(s) | Result (macOS) |
 |----|------------------|---------------|----------------|
@@ -64,7 +64,7 @@ Normative definitions: [graph-db-spike.md](./graph-db-spike.md). Tests: `crates/
 | **S4** | MCP context shield — bounded `subgraph(cluster_id)` | `s4_subgraph_respects_caps` | **Pass** — `max_depth=3`, `max_nodes=200` on ~805-node fixture; < 500 nodes |
 | **S5** | DAG validation — acyclic `depends_on` | `s5_acyclic_validation` | **Pass** — clean DAG empty; injected cycle returns path containing `p1` |
 | **S6** | Similar / existing problem (lexical) | `s6_bm25_search_duplicate_title` | **Pass** — duplicate title in top 3; unrelated not in top 2; score below duplicates |
-| **S6+** | Search & compare (stretch) | `grafeo_spike_s6plus.rs` (5 tests + 1 ignored) | **Pass** — see [S6+ subsection](#s6-stretch-search--compare) |
+| **S6+** | Search & compare (v1) | `grafeo_s6plus.rs` (4 tests) | **Pass** — see [S6+ subsection](#s6-stretch-search--compare) |
 
 ### Additional integration tests (supporting scenarios)
 
@@ -101,7 +101,7 @@ Normative definitions: [graph-db-spike.md](./graph-db-spike.md). Tests: `crates/
 
 ## Use cases enabled by Grafeo (via spike adapter)
 
-Prototype API: `PfeGraphStore` in `crates/openpfe-graph-spike/src/store.rs`. Maps to target [design.md](./design.md) `GraphStore` and product surfaces in [openpfe-ui/specification.md](../openpfe-ui/specification.md), [openpfe-mcp/specification.md](../openpfe-mcp/specification.md).
+Prototype API: `PfeGraphStore` in `crates/openpfe-graph-spike/src/store.rs`. Maps to target [design.md](../design.md) `GraphStore` and product surfaces in [openpfe-ui/specification.md](../openpfe-ui/specification.md), [openpfe-mcp/specification.md](../openpfe-mcp/specification.md).
 
 | Use case | Product need | Spike API / Grafeo capability |
 |----------|--------------|------------------------------|
@@ -190,18 +190,18 @@ Prioritized for a **follow-up spike** or product phase 2 — not required to clo
 
 | Outcome | Action |
 |---------|--------|
-| Grafeo pass + IndraDB pass | Compare S6, build/audit, latency, ops; see [graph-db-spike.md § Decision after spikes](./graph-db-spike.md#decision-after-spikes) |
-| Prefer Grafeo | Phase 2 `openpfe-graph` plan: promote adapter, lock `design.md` / `specification.md` engine lines, optional vector follow-up |
-| Prefer IndraDB | Keep Grafeo learnings for search module; lexical-only v1 or sidecar FTS |
-| Either engine | Product `find_similar` / MCP tool remains adapter-owned; structural leg stays custom Rust |
+| **Grafeo locked (2026-05-25)** | [decision.md](../decision.md); `design.md` / `specification.md` updated |
+| Phase 2 | Promote spike adapter to `openpfe-graph`; Grafeo intake on product crate; optional `vector-index` follow-up |
+| Product API | `find_similar` / MCP tool remains adapter-owned; structural leg stays custom Rust |
 
 ---
 
 ## Related documents
 
 - [plan 006](../../plans/006-spike-openpfe-graph-grafeo.md)
-- [spike-grafeo.md](./spike-grafeo.md)
-- [graph-db-spike.md](./graph-db-spike.md)
-- [graph-db-evaluation.md](./graph-db-evaluation.md)
-- [spike-indradb.md](./spike-indradb.md) — pending comparison baseline
-- [sparrowdb-outcome.md](./sparrowdb-outcome.md) — LPG shortlist peer (SparrowDB spike)
+- [grafeo.md](./grafeo.md)
+- [program.md](./program.md)
+- [evaluation.md](./evaluation.md)
+- [decision.md](../decision.md) — locked engine
+- [nanograph-outcome.md](./nanograph-outcome.md), [sparrowdb-outcome.md](./sparrowdb-outcome.md) — not selected
+- [indradb.md](./indradb.md) — rejected

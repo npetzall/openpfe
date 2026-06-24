@@ -1,7 +1,8 @@
-//! Phase 1 server process: pid flock, UDS IPC, loopback HTTP stub.
+//! Server process: pid flock, UDS IPC, loopback HTTP API.
 
+mod app_state;
 mod error;
-mod http_stub;
+mod http;
 mod ipc_dispatch;
 mod lock;
 mod options;
@@ -17,7 +18,8 @@ use openpfe_ipc::IpcListener;
 use tokio::sync::broadcast;
 use tokio::time::sleep;
 
-use crate::http_stub::HttpStub;
+use crate::app_state::{build_app_state, close_graph_best_effort};
+use crate::http::HttpServer;
 use crate::ipc_dispatch::IpcDispatch;
 use crate::lock::acquire_pid_lock;
 use crate::options::ServerOptions as Opts;
@@ -35,8 +37,10 @@ pub async fn run_server_with_opts(opts: ServerOptions) -> Result<(), ServerError
     let _pid_lock = acquire_pid_lock()?;
     remove_stale_socket_if_dead().await?;
 
-    let http = HttpStub::bind().await?;
+    let app_state = build_app_state()?;
+    let http = HttpServer::bind(app_state).await?;
     let http_base_url = http.base_url();
+    let graph = http.graph_handle();
 
     let (shutdown_tx, _) = broadcast::channel::<()>(1);
     let handler = IpcDispatch::new(http_base_url, shutdown_tx.clone());
@@ -52,6 +56,7 @@ pub async fn run_server_with_opts(opts: ServerOptions) -> Result<(), ServerError
     wait_for_shutdown(shutdown_tx.subscribe()).await;
     drain_and_stop(opts.shutdown_timeout, ipc_task, http_task).await;
 
+    close_graph_best_effort(graph);
     cleanup_runtime_files();
     Ok(())
 }

@@ -1,4 +1,7 @@
-//! MCP tools and resources for agents (workspace scaffold).
+//! MCP tools and resources for agents.
+//!
+//! Product contract: [.dev/crates/openpfe-mcp/specification.md](https://github.com/npetzall/openpfe/blob/main/.dev/crates/openpfe-mcp/specification.md).
 
-/// Placeholder until MCP is implemented.
-pub fn stub() {}
+mod handler;
+
+pub use handler::McpHandler;

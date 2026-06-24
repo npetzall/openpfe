@@ -1,9 +1,9 @@
 # nanograph spike — outcome summary
 
-**Read when:** deciding engine choice after [plan 006](../../plans/006-spike-openpfe-graph-nanograph.md); comparing to [grafeo-outcome.md](./grafeo-outcome.md) and [spike-indradb.md](./spike-indradb.md).
+**Read when:** reviewing nanograph spike evidence. **Not selected for v1** — engine locked to **Grafeo** ([decision.md](../decision.md)).
 
 **Implementation:** `crates/openpfe-graph-spike/` on branch `spike_db_nanograph` (throwaway; not product `openpfe-graph`).  
-**Detailed checklist / measurements:** [spike-nanograph.md](./spike-nanograph.md).  
+**Detailed checklist / measurements:** [nanograph.md](./nanograph.md).  
 **Intake:** [.dev/dependencies/nanograph/](../../dependencies/nanograph/).
 
 | Field | Value |
@@ -59,7 +59,7 @@ nanograph meets the **required** spike bar (S1–S6) and **S6+ stretch** on macO
 
 ## Scenarios tested
 
-Normative definitions: [graph-db-spike.md](./graph-db-spike.md). Tests: `crates/openpfe-graph-spike/tests/nanograph_spike.rs`, `nanograph_spike_s6plus.rs`, `nanograph_smoke_load.rs`.
+Normative definitions: [program.md](./program.md). Tests: `crates/openpfe-graph-spike/tests/nanograph_spike.rs`, `nanograph_spike_s6plus.rs`, `nanograph_smoke_load.rs`.
 
 | ID | Product scenario | Spike test(s) | Result (macOS) |
 |----|------------------|---------------|----------------|
@@ -106,7 +106,7 @@ Normative definitions: [graph-db-spike.md](./graph-db-spike.md). Tests: `crates/
 
 ## Use cases enabled by nanograph (via spike adapter)
 
-Prototype API: `PfeGraphStore` in `crates/openpfe-graph-spike/src/store.rs`. Maps to target [design.md](./design.md) `GraphStore` and product surfaces in [openpfe-ui/specification.md](../openpfe-ui/specification.md), [openpfe-mcp/specification.md](../openpfe-mcp/specification.md).
+Prototype API: `PfeGraphStore` in `crates/openpfe-graph-spike/src/store.rs`. Maps to target [design.md](../design.md) `GraphStore` and product surfaces in [openpfe-ui/specification.md](../openpfe-ui/specification.md), [openpfe-mcp/specification.md](../openpfe-mcp/specification.md).
 
 | Use case | Product need | Spike API / nanograph capability |
 |----------|--------------|----------------------------------|
@@ -207,7 +207,7 @@ Prioritized for **follow-up spike** or product phase 2 — not required to close
 | S6+ stretch | Pass (same adapter pattern) | Pass |
 | Linux | Skipped | Skipped |
 
-Full decision matrix: [graph-db-evaluation.md](./graph-db-evaluation.md) after SparrowDB spike.
+Engine lock: [decision.md](../decision.md) (Grafeo). Comparison record: [evaluation.md](./evaluation.md).
 
 ---
 
@@ -215,19 +215,18 @@ Full decision matrix: [graph-db-evaluation.md](./graph-db-evaluation.md) after S
 
 | Outcome | Action |
 |---------|--------|
-| nanograph pass + Grafeo pass | Compare S6, schema friction, build/audit, read latency, ops in [graph-db-spike.md § Decision after spikes](./graph-db-spike.md#decision-after-spikes) |
-| Prefer nanograph | Phase 2 plan: `.pg` schema lock, rewrite reads off export, async server port, directory backup docs |
-| Prefer Grafeo | nanograph learnings still inform query-language BM25 and folder layout options |
-| Either engine | `find_similar` / MCP tool remains adapter-owned; structural leg stays custom Rust |
-| IndraDB | **Rejected** — [spike-indradb.md](./spike-indradb.md); not a tie-breaker vs nanograph |
+| **Not selected (2026-05-25)** | [decision.md](../decision.md) — Grafeo chosen for v1 |
+| Retained value | Query-language BM25 and folder backup patterns inform future docs only |
+| IndraDB | **Rejected** — [indradb.md](./indradb.md) |
 
 ---
 
 ## Related documents
 
 - [plan 006 — nanograph](../../plans/006-spike-openpfe-graph-nanograph.md)
-- [spike-nanograph.md](./spike-nanograph.md)
+- [nanograph.md](./nanograph.md)
 - [grafeo-outcome.md](./grafeo-outcome.md)
-- [graph-db-spike.md](./graph-db-spike.md)
-- [graph-db-evaluation.md](./graph-db-evaluation.md)
-- [spike-sparrowdb.md](./spike-sparrowdb.md) — pending shortlist comparison
+- [program.md](./program.md)
+- [evaluation.md](./evaluation.md)
+- [decision.md](../decision.md) — locked engine (Grafeo)
+- [sparrowdb.md](./sparrowdb.md), [sparrowdb-outcome.md](./sparrowdb-outcome.md)

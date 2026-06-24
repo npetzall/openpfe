@@ -1,6 +1,6 @@
 # Spike: SparrowDB (embedded LPG)
 
-**Parent program:** [graph-db-spike.md](./graph-db-spike.md)
+**Parent program:** [program.md](./program.md)
 
 **Engine:** [SparrowDB](https://github.com/ryaker/SparrowDB) — embedded Rust graph DB with WAL-backed durability and Cypher execution (use **Rust API / library** in spike, not product-facing Cypher).
 
@@ -29,7 +29,7 @@
 1. Embed SparrowDB in-process at a project-local directory under `<temp>/openpfe-graph-spike/sparrowdb/`.
 2. Implement **S1–S5** via `GraphStore`-shaped adapter (Cypher allowed **only** inside spike if faster than low-level API).
 3. Document **S6** — native FTS or acceptable v1 workaround (`list` + filter / sidecar).
-4. **S6+ (stretch)** — `find_similar` with lexical, semantic-proxy, and structural legs ([graph-db-spike.md](./graph-db-spike.md#stretch-goals--search--compare-s6)).
+4. **S6+ (stretch)** — `find_similar` with lexical, semantic-proxy, and structural legs ([program.md#stretch-goals--search--compare-s6](./program.md#stretch-goals--search--compare-s6)).
 5. Compare build, audit, and binary size vs Grafeo and nanograph.
 
 ---
@@ -141,7 +141,7 @@ Under `GraphDb::open(path)`: `wal/` directory present; catalog/CSR/column files 
 
 ### S6+ stretch (search & compare)
 
-**Outcome:** **Pass** — same stretch fixture and checklist as Grafeo ([spike-grafeo.md](./spike-grafeo.md)); details in [sparrowdb-outcome.md](./sparrowdb-outcome.md#s6-stretch-search--compare).
+**Outcome:** **Pass** — same stretch fixture and checklist as Grafeo ([grafeo.md](./grafeo.md)); details in [sparrowdb-outcome.md#s6-stretch-search--compare](./sparrowdb-outcome.md#s6-stretch-search--compare).
 
 | Kind | Pass? | Notes |
 |------|-------|-------|
@@ -169,7 +169,7 @@ Reproduce: `cargo test -p openpfe-graph-spike --test sparrowdb_spike_s6plus`
 ## Related
 
 - [sparrowdb-outcome.md](./sparrowdb-outcome.md)
-- [spike-grafeo.md](./spike-grafeo.md)
+- [grafeo.md](./grafeo.md)
 - [grafeo-outcome.md](./grafeo-outcome.md)
-- [spike-nanograph.md](./spike-nanograph.md)
-- [graph-db-evaluation.md](./graph-db-evaluation.md)
+- [nanograph.md](./nanograph.md)
+- [evaluation.md](./evaluation.md)
